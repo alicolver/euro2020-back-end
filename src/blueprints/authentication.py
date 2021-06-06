@@ -58,10 +58,7 @@ def signup():
 
     user = PageupUser(
         name=user_info['name'],
-        age=user_info['age'],
-        email=user_info['email'],
-        gender=user_info['gender'],
-        postcode=user_info['postcode']
+        email=user_info['email']
     )
 
     user.set_password(user_info['password'])
