@@ -37,3 +37,30 @@ def setScore():
         'success': True,
         'message': 'Score updated'
     })
+
+
+@scores.route('/match/end', methods=['post'])
+@admin_required
+def endMatch():
+    data = request.get_json()
+
+    already = session.query(exists().where(
+        Match.matchid == data['matchid'])).scalar()
+
+    if not already:
+        return jsonify({
+            'success': False,
+            'message': 'Match does not exist'
+        }), 404
+
+    match = session.query(Match).filter(
+        Match.matchid == data['matchid'])[0]
+
+    setattr(match, "is_fulltime", True)
+
+    session.commit()
+
+    return jsonify({
+        'success': True,
+        'message': 'Match ended'
+    })
