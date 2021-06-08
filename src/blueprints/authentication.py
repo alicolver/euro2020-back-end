@@ -105,6 +105,29 @@ def auth_required(endpoint):
     return wrapper
 
 
+def admin_required(endpoint):
+    @wraps(endpoint)
+    def wrapper(*args, **kws):
+        userid = get_userid(request.headers['Authenticate'])
+
+        if not isinstance(userid, numbers.Number):
+            return jsonify({
+                'success': False
+            }), 403
+
+        user = session.query(User).filter(User.userid == userid)[0]
+
+        admin = getattr(user, 'admin')
+
+        if not admin:
+            return jsonify({
+                'success': False
+            }), 403
+
+        return endpoint(*args, **kws)
+    return wrapper
+
+
 @authentication.route('/validateToken', methods=["GET"])
 @auth_required
 def validateToken(userid):
