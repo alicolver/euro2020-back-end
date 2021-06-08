@@ -5,7 +5,7 @@ from blueprints.authentication import authentication
 app = Flask(__name__)
 
 app.register_blueprint(authentication)
-app.register_blueprint(user_information)
+# app.register_blueprint(user_information)
 
 CORS(app)
 
