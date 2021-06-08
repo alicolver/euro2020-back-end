@@ -48,11 +48,11 @@ class Team(Base):
 
 class Prediction(Base):
     __tablename__ = 'predictions'
-
-    userid = Column(Integer, primary_key=True)
-    matchid = Column(Integer, primary_key=True)
+    predictionid = Column(Integer, primary_key=True)
+    userid = Column(Integer, foreign_key=True)
+    matchid = Column(Integer, foreign_key=True)
     team_one_pred = Column(Integer, nullable=False)
     team_two_pred = Column(Integer, nullable=False)
     team_to_progress = Column(Integer, nullable=False)
     penalty_winners = Column(Integer, nullable=False)
-    score = Column(Integer, nullable=False)
+    score = Column(Integer, nullable=False, default=0)

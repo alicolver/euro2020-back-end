@@ -1,10 +1,12 @@
 from flask import Flask
 from flask_cors import CORS
 from blueprints.authentication import authentication
+from blueprints.predictions import predictions
 
 app = Flask(__name__)
 
 app.register_blueprint(authentication)
+app.register_blueprint(predictions)
 # app.register_blueprint(user_information)
 
 CORS(app)

@@ -100,7 +100,7 @@ def auth_required(endpoint):
         if not isinstance(userid, numbers.Number):
             return jsonify({
                 'success': False
-            })
+            }), 403
         return endpoint(userid, *args, **kws)
     return wrapper
 
