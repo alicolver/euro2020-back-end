@@ -2,7 +2,7 @@ from flask import Blueprint, jsonify, request
 from sqlalchemy.sql import exists
 from database.connection_manager import Session
 from blueprints.authentication import admin_required
-from database.orm import Match
+from database.orm import Match, Prediction
 session = Session()
 
 
@@ -29,7 +29,7 @@ def setScore():
     setattr(match, "team_one_goals", data['team_one_goals'])
     setattr(match, "team_two_goals", data['team_two_goals'])
 
-    # Recalculate scores here?
+    recalculate_scores(match)
 
     session.commit()
 
@@ -37,6 +37,45 @@ def setScore():
         'success': True,
         'message': 'Score updated'
     })
+
+
+def recalculate_scores(match):
+    predictions = session.query(Prediction).filter(
+        Prediction.matchid == getattr(match, 'matchid'))
+
+    team_one_goals = getattr(match, 'team_one_goals')
+    team_two_goals = getattr(match, 'team_two_goals')
+
+    for prediction in predictions:
+        team_one_pred = getattr(prediction, 'team_one_pred')
+        team_two_pred = getattr(prediction, 'team_two_pred')
+
+        if team_one_goals == team_one_pred and team_two_goals == team_two_pred:
+            setattr(prediction, "score", 3)
+            continue
+
+        if team_one_goals > team_two_goals and team_one_pred > team_two_pred:
+            setattr(prediction, "score", 1)
+            continue
+
+        if team_one_goals < team_two_goals and team_one_pred < team_two_pred:
+            setattr(prediction, "score", 1)
+            continue
+
+        if team_one_goals == team_two_goals and team_one_pred == team_two_pred:
+            setattr(prediction, "score", 1)
+            continue
+
+        setattr(prediction, "score", 0)
+
+
+def calculate_user_score(user):
+    predictions = session.query(Prediction).filter(
+        Prediction.userid == getattr(user, 'userid'))
+    score = 0
+    for prediction in predictions:
+        score += getattr(prediction, 'score')
+    return score
 
 
 @scores.route('/match/end', methods=['post'])
