@@ -3,10 +3,10 @@ from sqlalchemy.sql import exists
 from sqlalchemy import inspect
 from database.connection_manager import Session
 from blueprints.authentication import auth_required
-from database.orm import Prediction, Match
+from database.orm import Prediction, Match, Team
 from sqlalchemy.exc import SQLAlchemyError
 import pytz
-from datetime import datetime
+from datetime import datetime, timedelta, time
 
 session = Session()
 
@@ -38,7 +38,7 @@ def createPrediction(userid):
     data = request.get_json()
 
     already = session.query(exists().where(
-        Prediction.userid == userid and Prediction.matchid == data.matchid)).scalar()
+        Prediction.userid == userid).where(Prediction.matchid == data['matchid'])).scalar()
 
     if already:
         return jsonify({
@@ -185,4 +185,65 @@ def deletePrediction(userid):
 
     return jsonify({
         'success': True,
+    })
+
+
+def has_prediction(match, userid):
+    already = session.query(exists().where(
+        Prediction.userid == userid).where(Prediction.matchid == getattr(match, 'matchid'))).scalar()
+
+    print("Yoink --->", already, getattr(match, 'matchid'))
+
+    return already
+
+
+@ predictions.route('/prediction-required', methods=['GET'])
+@ auth_required
+def getUnpredictedMatches(userid):
+
+    timezone = pytz.timezone('Europe/London')
+    today = datetime.today()
+    today = datetime(today.year, today.month, today.day)
+
+    tomorrow = today + timedelta(1)
+
+    matches = session.query(Match).filter(
+        Match.match_date >= today).filter(Match.match_date <= tomorrow).all()
+
+    results = []
+
+    for match in matches:
+        if has_prediction(match, userid):
+            continue
+        matchid = getattr(match, 'matchid')
+        if check_kicked_off(matchid):
+            continue
+
+        team_one_id = getattr(match, 'team_one_id')
+        team_two_id = getattr(match, 'team_two_id')
+
+        team_one = session.query(Team).filter(Team.teamid == team_one_id)[0]
+        team_two = session.query(Team).filter(Team.teamid == team_two_id)[0]
+
+        match_formated = {
+            "team_one": {
+                "name": getattr(team_one, 'name'),
+                "emoji": getattr(team_one, 'emoji')
+            },
+            "team_two": {
+                "name": getattr(team_two, 'name'),
+                "emoji": getattr(team_two, 'emoji')
+            },
+            "match": {
+                "match_date": getattr(match, 'match_date').isoformat(),
+                "kick_off_time": getattr(match, 'kick_off_time').isoformat(),
+                "is_knockout": getattr(match, 'is_knockout'),
+                "matchid": matchid
+            }
+        }
+        results.append(match_formated)
+
+    return jsonify({
+        "success": True,
+        "matches": results
     })
