@@ -8,7 +8,7 @@ from datetime import datetime, timedelta
 from database.orm import User  # , PageupPasswordReset
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy import desc
-from utils.users import get_userid, reset_password_email
+from utils.users import get_userid
 from utils.environment_variables import JWT_ALGORITHM, JWT_KEY
 from passlib.hash import pbkdf2_sha256
 from database.connection_manager import Session

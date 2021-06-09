@@ -1,5 +1,6 @@
-from sqlalchemy import ARRAY, Column, DateTime, Float, Integer, String, Text, text, Boolean, Date, Time
+from sqlalchemy import ARRAY, Column, DateTime, Float, Integer, String, Text, text, Boolean, Date, Time, ForeignKey
 from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.orm import relationship
 from sqlalchemy.types import INTEGER
 from passlib.hash import pbkdf2_sha256
 
@@ -17,6 +18,7 @@ class User(Base):
     password = Column(String(255), nullable=False)
     total_score = Column(Integer, nullable=False, default=0)
     admin = Column(Boolean, nullable=False, default=False)
+    predictions = relationship("Prediction")
 
     def set_password(self, password):
         self.password = pbkdf2_sha256.hash(password)
@@ -29,14 +31,15 @@ class Match(Base):
     __tablename__ = 'matches'
 
     matchid = Column(Integer, primary_key=True)
-    team_one = Column(Integer, nullable=False)
-    team_two = Column(Integer, nullable=False)
+    team_one = Column(Integer, ForeignKey('teams.teamid'))
+    team_two = Column(Integer, ForeignKey('teams.teamid'))
     team_one_goals = Column(Integer)
     team_two_goals = Column(Integer)
     is_fulltime = Column(Boolean)
     match_date = Column(Date, nullable=False)
     kick_off_time = Column(Time, nullable=False)
     is_knockout = Column(Boolean, nullable=False)
+    predictions = relationship("Prediction")
 
 
 class Team(Base):
@@ -45,13 +48,14 @@ class Team(Base):
     teamid = Column(Integer, primary_key=True)
     name = Column(Text, nullable=False)
     emoji = Column(Text, nullable=False)
+    matches = relationship("Match")
 
 
 class Prediction(Base):
     __tablename__ = 'predictions'
     predictionid = Column(Integer, primary_key=True)
-    userid = Column(Integer, foreign_key=True)
-    matchid = Column(Integer, foreign_key=True)
+    userid = Column(Integer, ForeignKey('users.userid'))
+    matchid = Column(Integer, ForeignKey('matches.matchid'))
     team_one_pred = Column(Integer, nullable=False)
     team_two_pred = Column(Integer, nullable=False)
     team_to_progress = Column(Integer, nullable=False)
