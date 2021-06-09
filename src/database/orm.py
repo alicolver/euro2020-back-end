@@ -59,5 +59,8 @@ class Prediction(Base):
     team_to_progress = Column(Integer, nullable=False)
     penalty_winners = Column(Integer, nullable=False)
     score = Column(Integer, nullable=False, default=0)
+    correct_result = Column(Boolean, nullable=False, default=False)
+    correct_score = Column(Boolean, nullable=False, default=False)
+    score = Column(Integer, nullable=False, default=0)
     user = relationship("User", foreign_keys=[userid])
     match = relationship("Match", foreign_keys=[matchid])

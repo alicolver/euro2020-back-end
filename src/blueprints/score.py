@@ -52,30 +52,47 @@ def recalculate_scores(match):
 
         if team_one_goals == team_one_pred and team_two_goals == team_two_pred:
             setattr(prediction, "score", 3)
+            setattr(prediction, "correct_score", True)
+            setattr(prediction, "correct_result", True)
             continue
 
         if team_one_goals > team_two_goals and team_one_pred > team_two_pred:
             setattr(prediction, "score", 1)
+            setattr(prediction, "correct_score", False)
+            setattr(prediction, "correct_result", True)
             continue
 
         if team_one_goals < team_two_goals and team_one_pred < team_two_pred:
             setattr(prediction, "score", 1)
+            setattr(prediction, "correct_score", False)
+            setattr(prediction, "correct_result", True)
             continue
 
         if team_one_goals == team_two_goals and team_one_pred == team_two_pred:
             setattr(prediction, "score", 1)
+            setattr(prediction, "correct_score", False)
+            setattr(prediction, "correct_result", True)
             continue
 
         setattr(prediction, "score", 0)
+        setattr(prediction, "correct_score", False)
+        setattr(prediction, "correct_result", False)
 
 
 def calculate_user_score(user):
     predictions = session.query(Prediction).filter(
         Prediction.userid == getattr(user, 'userid'))
     score = 0
+    correct_results = 0
+    correct_scores = 0
     for prediction in predictions:
         score += getattr(prediction, 'score')
-    return score
+        if getattr(prediction, 'correct_score'):
+            correct_scores += 1
+
+        if getattr(prediction, 'correct_result'):
+            correct_results += 1
+    return score, correct_scores, correct_results
 
 
 @scores.route('/match/end', methods=['post'])

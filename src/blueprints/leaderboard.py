@@ -14,9 +14,12 @@ def getLeaderboard():
     users = session.query(User).all()
     users_formated = []
     for user in users:
+        score, correct_scores, correct_results = calculate_user_score(user)
         user_formated = {
             "name": getattr(user, 'name'),
-            "score": calculate_user_score(user)
+            "score": score,
+            "correct_scores": correct_scores,
+            "correct_results": correct_results,
         }
         users_formated.append(user_formated)
 
