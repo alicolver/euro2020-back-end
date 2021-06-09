@@ -18,7 +18,6 @@ class User(Base):
     password = Column(String(255), nullable=False)
     total_score = Column(Integer, nullable=False, default=0)
     admin = Column(Boolean, nullable=False, default=False)
-    predictions = relationship("Prediction")
 
     def set_password(self, password):
         self.password = pbkdf2_sha256.hash(password)
@@ -27,28 +26,28 @@ class User(Base):
         return pbkdf2_sha256.verify(password, self.password)
 
 
-class Match(Base):
-    __tablename__ = 'matches'
-
-    matchid = Column(Integer, primary_key=True)
-    team_one = Column(Integer, ForeignKey('teams.teamid'))
-    team_two = Column(Integer, ForeignKey('teams.teamid'))
-    team_one_goals = Column(Integer)
-    team_two_goals = Column(Integer)
-    is_fulltime = Column(Boolean)
-    match_date = Column(Date, nullable=False)
-    kick_off_time = Column(Time, nullable=False)
-    is_knockout = Column(Boolean, nullable=False)
-    predictions = relationship("Prediction")
-
-
 class Team(Base):
     __tablename__ = 'teams'
 
     teamid = Column(Integer, primary_key=True)
     name = Column(Text, nullable=False)
     emoji = Column(Text, nullable=False)
-    matches = relationship("Match")
+
+
+class Match(Base):
+    __tablename__ = 'matches'
+
+    matchid = Column(Integer, primary_key=True)
+    team_one_id = Column(Integer, ForeignKey('teams.teamid'))
+    team_two_id = Column(Integer, ForeignKey('teams.teamid'))
+    team_one_goals = Column(Integer)
+    team_two_goals = Column(Integer)
+    is_fulltime = Column(Boolean)
+    match_date = Column(Date, nullable=False)
+    kick_off_time = Column(Time, nullable=False)
+    is_knockout = Column(Boolean, nullable=False)
+    team_one = relationship("Team", foreign_keys=[team_one_id])
+    team_two = relationship("Team", foreign_keys=[team_two_id])
 
 
 class Prediction(Base):
@@ -61,3 +60,5 @@ class Prediction(Base):
     team_to_progress = Column(Integer, nullable=False)
     penalty_winners = Column(Integer, nullable=False)
     score = Column(Integer, nullable=False, default=0)
+    user = relationship("User", foreign_keys=[userid])
+    match = relationship("Match", foreign_keys=[matchid])
