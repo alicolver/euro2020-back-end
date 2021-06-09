@@ -132,6 +132,8 @@ def updatePrediction(userid):
 
     setattr(prediction, 'team_to_progress', winner)
 
+    session.commit()
+
     return jsonify({
         'success': True,
         'prediction': object_as_dict(prediction)
