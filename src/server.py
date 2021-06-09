@@ -9,7 +9,6 @@ app = Flask(__name__)
 app.register_blueprint(authentication)
 app.register_blueprint(predictions)
 app.register_blueprint(scores)
-# app.register_blueprint(user_information)
 
 CORS(app)
 
