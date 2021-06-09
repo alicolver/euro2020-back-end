@@ -3,13 +3,36 @@ from sqlalchemy.sql import exists
 from sqlalchemy import inspect
 from database.connection_manager import Session
 from blueprints.authentication import auth_required
-from database.orm import Prediction
+from database.orm import Prediction, Match
 from sqlalchemy.exc import SQLAlchemyError
+import pytz
+from datetime import datetime
 
 session = Session()
 
 
 predictions = Blueprint('predictions', __name__)
+
+
+def check_kicked_off(matchid):
+    match = session.query(Match).filter(
+        Match.matchid == matchid)[0]
+
+    timezone = pytz.timezone('Europe/London')
+
+    kick_off = getattr(match, 'kick_off_time')
+    match_date = getattr(match, 'match_date')
+
+    combined = datetime.combine(match_date, kick_off)
+    combined = timezone.localize(combined)
+
+    current_time = datetime.now(timezone)
+
+    print("DEBUG:------------")
+    print(combined)
+    print(current_time)
+
+    return combined < current_time
 
 
 @predictions.route('/prediction', methods=['POST'])
@@ -26,6 +49,12 @@ def createPrediction(userid):
             'success': False,
             'message': 'Prediction already exists'
         }), 409
+
+    if check_kicked_off(data['matchid']):
+        return jsonify({
+            'success': False,
+            'message': 'Match has started'
+        }), 400
 
     winner = 1
     if data['team_one_pred'] < data['team_two_pred']:
@@ -116,6 +145,13 @@ def updatePrediction(userid):
 
     prediction = session.query(Prediction).filter(
         Prediction.predictionid == data['predictionid'])[0]
+
+    matchid = getattr(prediction, 'matchid')
+    if check_kicked_off(matchid):
+        return jsonify({
+            'success': False,
+            'message': 'Match has started'
+        }), 400
 
     for key, value in data['prediction'].items():
         if key in ['penalty_winners', 'team_one_pred', 'team_two_pred']:
