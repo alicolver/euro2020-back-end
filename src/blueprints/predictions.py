@@ -28,10 +28,6 @@ def check_kicked_off(matchid):
 
     current_time = datetime.now(timezone)
 
-    print("DEBUG:------------")
-    print(combined)
-    print(current_time)
-
     return combined < current_time
 
 
