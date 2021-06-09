@@ -5,7 +5,7 @@ import math
 import random
 from flask import Blueprint, jsonify, request
 from datetime import datetime, timedelta
-from database.orm import User  # , PageupPasswordReset
+from database.orm import User
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy import desc
 from utils.users import get_userid
@@ -26,7 +26,7 @@ def login():
     error_return = jsonify({
         'token': '',
         'error-message': 'Incorrect Email or Password',
-    })
+    }), 403
 
     email = credentials['email']
     password = credentials['password']
