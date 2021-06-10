@@ -28,7 +28,7 @@ def login():
         'error-message': 'Incorrect Email or Password',
     }), 403
 
-    email = credentials['email']
+    email = credentials['email'].lower()
     password = credentials['password']
 
     try:
@@ -59,7 +59,7 @@ def signup():
 
     user = User(
         name=user_info['name'],
-        email=user_info['email']
+        email=user_info['email'].lower()
     )
 
     user.set_password(user_info['password'])
