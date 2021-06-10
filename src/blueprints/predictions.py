@@ -105,23 +105,16 @@ def object_as_dict(obj):
 @auth_required
 def getPrediction(userid):
 
-    predictionid = request.args.get('predictionid')
+    predictions = session.query(Prediction).filter(
+        Prediction.userid == userid)
 
-    already = session.query(exists().where(
-        Prediction.predictionid == predictionid)).scalar()
-
-    if not already:
-        return jsonify({
-            'success': False,
-            'message': 'Prediction does not exist'
-        }), 404
-
-    prediction = session.query(Prediction).filter(
-        Prediction.predictionid == predictionid)[0]
+    predictions_formated = []
+    for prediction in predictions:
+        predictions_formated.append(object_as_dict(prediction))
 
     return jsonify({
         'success': True,
-        'prediction': object_as_dict(prediction)
+        'predictions': predictions_formated
     })
 
 
