@@ -144,24 +144,12 @@ def validateToken(userid):
     })
 
 
-@authentication.route('/check-admin', methods=['GET'])
-@auth_required
-def is_admin(userid):
-    userid = get_userid(request.headers['Authenticate'])
-
-    if not isinstance(userid, numbers.Number):
-        return jsonify({
-            'success': False
-        }), 403
-
-    user = session.query(User).filter(User.userid == userid)[0]
-
-    admin = getattr(user, 'admin')
-
+@authentication.route('/is-admin', methods=["GET"])
+@admin_required
+def validateToken(userid):
     return jsonify({
-        'success': admin
+        'success': True
     })
-
 
 # @authentication.route('/requestPasswordReset', methods=["POST"])
 # def request_reset():
