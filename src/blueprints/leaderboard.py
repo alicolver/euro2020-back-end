@@ -11,7 +11,7 @@ leaderboard = Blueprint('leaderboard', __name__)
 
 @leaderboard.route('/leaderboard', methods=['GET'])
 def getLeaderboard():
-    users = session.query(User).all()
+    users = session.query(User).filter(User.hidden == False).all()
     users_formated = []
     for user in users:
         score, correct_scores, correct_results = calculate_user_score(user)

@@ -17,6 +17,7 @@ class User(Base):
     email = Column(String(255), nullable=False, unique=True)
     password = Column(String(255), nullable=False)
     admin = Column(Boolean, nullable=False, default=False)
+    hidden = Column(Boolean, nullable=False, default=False)
 
     def set_password(self, password):
         self.password = pbkdf2_sha256.hash(password)
