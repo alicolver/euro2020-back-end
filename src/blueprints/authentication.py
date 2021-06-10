@@ -142,6 +142,13 @@ def validateToken(userid):
     })
 
 
+@authentication.route('/is-admin', methods=["GET"])
+@admin_required
+def validateToken(userid):
+    return jsonify({
+        'success': True
+    })
+
 # @authentication.route('/requestPasswordReset', methods=["POST"])
 # def request_reset():
 #     try:
