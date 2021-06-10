@@ -49,7 +49,7 @@ def getLiveGames(userid):
     })
 
 
-@matches.route('/match/end', methods=['post'])
+@matches.route('/match/end', methods=['put'])
 @admin_required
 def endMatch():
     data = request.get_json()
