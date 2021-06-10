@@ -31,11 +31,6 @@ def check_kicked_off(matchid):
     return combined < current_time
 
 
-@predictions.route('/predict', methods=['POST'])
-def predict_redirect():
-    return redirect('/prediction', 307)
-
-
 @predictions.route('/prediction', methods=['POST'])
 @auth_required
 def createPrediction(userid):
@@ -64,13 +59,25 @@ def createPrediction(userid):
     elif data['team_one_pred'] == data['team_two_pred']:
         winner = data['penalty_winners']
 
+    match = session.query(Match).filter(Match.matchid == data['matchid'])[0]
+
+    penalty_winners = 1
+    if 'penalty_winners' in data:
+        penalty_winners = data['penalty_winners']
+    else:
+        if getattr(match, 'is_knockout'):
+            return jsonify({
+                'success': False,
+                'message': 'Must specify field \'penalty_winners\''
+            }), 400
+
     prediction = Prediction(
         userid=userid,
         matchid=data['matchid'],
         team_one_pred=data['team_one_pred'],
         team_two_pred=data['team_two_pred'],
         team_to_progress=winner,
-        penalty_winners=data['penalty_winners'],
+        penalty_winners=penalty_winners,
     )
 
     try:
