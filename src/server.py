@@ -4,6 +4,7 @@ from blueprints.authentication import authentication
 from blueprints.predictions import predictions
 from blueprints.score import scores
 from blueprints.leaderboard import leaderboard
+from blueprints.matches import matches
 
 app = Flask(__name__)
 
@@ -11,6 +12,7 @@ app.register_blueprint(authentication)
 app.register_blueprint(predictions)
 app.register_blueprint(scores)
 app.register_blueprint(leaderboard)
+app.register_blueprint(matches)
 
 CORS(app)
 

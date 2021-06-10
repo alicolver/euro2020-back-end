@@ -175,19 +175,7 @@ def has_prediction(match, userid):
     return already
 
 
-@ predictions.route('/prediction-required', methods=['GET'])
-@ auth_required
-def getUnpredictedMatches(userid):
-
-    timezone = pytz.timezone('Europe/London')
-    today = datetime.today()
-    today = datetime(today.year, today.month, today.day)
-
-    tomorrow = today + timedelta(1)
-
-    matches = session.query(Match).filter(
-        Match.match_date >= today).filter(Match.match_date <= tomorrow).all()
-
+def format_matches(matches, userid):
     results = []
 
     for match in matches:
@@ -231,6 +219,23 @@ def getUnpredictedMatches(userid):
             }
 
         results.append(match_formated)
+    return results
+
+
+@ predictions.route('/prediction-required', methods=['GET'])
+@ auth_required
+def getUnpredictedMatches(userid):
+
+    timezone = pytz.timezone('Europe/London')
+    today = datetime.today()
+    today = datetime(today.year, today.month, today.day)
+
+    tomorrow = today + timedelta(1)
+
+    matches = session.query(Match).filter(
+        Match.match_date >= today).filter(Match.match_date <= tomorrow).all()
+
+    results = format_matches(matches, userid)
 
     return jsonify({
         "success": True,
