@@ -178,7 +178,7 @@ def updatePrediction(userid):
         }), 400
 
     for key, value in data['prediction'].items():
-        if key in ['penalty_winners', 'team_one_pred', 'team_two_pred']:
+        if key in ['penalty_winners', 'team_one_pred', 'team_two_pred'] and value is not None:
             setattr(prediction, key, value)
 
     winner = 1
