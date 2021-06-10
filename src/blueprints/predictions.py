@@ -135,49 +135,6 @@ def update_prediction(userid, data):
         Prediction.matchid == data['matchid']).filter(Prediction.userid == userid)[0]
 
     for key, value in data.items():
-        if key in ['penalty_winners', 'team_one_pred', 'team_two_pred']:
-            setattr(prediction, key, value)
-
-    winner = 1
-    team_one_pred = getattr(prediction, 'team_one_pred')
-    team_two_pred = getattr(prediction, 'team_two_pred')
-    penalty_winners = getattr(prediction, 'penalty_winners')
-    if team_one_pred < team_two_pred:
-        winner = 2
-    elif team_one_pred == team_two_pred:
-        winner = penalty_winners
-
-    setattr(prediction, 'team_to_progress', winner)
-
-    session.commit()
-
-
-@predictions.route('/prediction', methods=['PUT'])
-@auth_required
-def updatePrediction(userid):
-
-    data = request.get_json()
-
-    already = session.query(exists().where(
-        Prediction.predictionid == data['predictionid'])).scalar()
-
-    if not already:
-        return jsonify({
-            'success': False,
-            'message': 'Prediction does not exist'
-        }), 404
-
-    prediction = session.query(Prediction).filter(
-        Prediction.predictionid == data['predictionid'])[0]
-
-    matchid = getattr(prediction, 'matchid')
-    if check_kicked_off(matchid):
-        return jsonify({
-            'success': False,
-            'message': 'Match has started'
-        }), 400
-
-    for key, value in data['prediction'].items():
         if key in ['penalty_winners', 'team_one_pred', 'team_two_pred'] and value is not None:
             setattr(prediction, key, value)
 
@@ -193,11 +150,6 @@ def updatePrediction(userid):
     setattr(prediction, 'team_to_progress', winner)
 
     session.commit()
-
-    return jsonify({
-        'success': True,
-        'prediction': object_as_dict(prediction)
-    })
 
 
 @predictions.route('/prediction', methods=['DELETE'])
