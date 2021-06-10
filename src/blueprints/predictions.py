@@ -1,4 +1,4 @@
-from flask import Blueprint, jsonify, request
+from flask import Blueprint, jsonify, request, redirect
 from sqlalchemy.sql import exists
 from sqlalchemy import inspect
 from database.connection_manager import Session
@@ -29,6 +29,11 @@ def check_kicked_off(matchid):
     current_time = datetime.now(timezone)
 
     return combined < current_time
+
+
+@predictions.route('/predict', methods=['POST'])
+def predict_redirect():
+    return redirect('/prediction', 307)
 
 
 @predictions.route('/prediction', methods=['POST'])
