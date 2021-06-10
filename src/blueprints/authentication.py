@@ -95,7 +95,13 @@ def signup():
 def auth_required(endpoint):
     @wraps(endpoint)
     def wrapper(*args, **kws):
-        userid = get_userid(request.headers['Authenticate'])
+        token = request.headers.get('Authenticate')
+        if token is None:
+            return jsonify({
+                'success': False
+            }), 403
+
+        userid = get_userid(token)
 
         if not isinstance(userid, numbers.Number):
             return jsonify({
