@@ -192,8 +192,6 @@ def has_prediction(match, userid):
     already = session.query(exists().where(
         Prediction.userid == userid).where(Prediction.matchid == getattr(match, 'matchid'))).scalar()
 
-    print("Yoink --->", already, getattr(match, 'matchid'))
-
     return already
 
 
@@ -213,8 +211,7 @@ def getUnpredictedMatches(userid):
     results = []
 
     for match in matches:
-        if has_prediction(match, userid):
-            continue
+        hasPrediction = has_prediction(match, userid)
         matchid = getattr(match, 'matchid')
         if check_kicked_off(matchid):
             continue
@@ -239,8 +236,20 @@ def getUnpredictedMatches(userid):
                 "kick_off_time": getattr(match, 'kick_off_time').isoformat(),
                 "is_knockout": getattr(match, 'is_knockout'),
                 "matchid": matchid
-            }
+            },
+            "hasPrediction": hasPrediction,
         }
+
+        if hasPrediction:
+            prediction = session.query(Prediction).filter(
+                Prediction.userid == userid).filter(Prediction.matchid == matchid)[0]
+
+            match_formated['prediction'] = {
+                "team_one_pred": getattr(prediction, 'team_one_pred'),
+                "team_two_pred": getattr(prediction, 'team_two_pred'),
+                "predictionid": getattr(prediction, 'predictionid'),
+            }
+
         results.append(match_formated)
 
     return jsonify({
