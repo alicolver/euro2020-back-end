@@ -23,7 +23,7 @@ def getLeaderboard():
         }
         users_formated.append(user_formated)
 
-    ordered = sorted(users_formated, key=lambda u: u['score'])
+    ordered = sorted(users_formated, key=lambda u: u['score'], reverse=True)
 
     return jsonify({
         "success": True,
