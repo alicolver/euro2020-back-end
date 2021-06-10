@@ -62,10 +62,10 @@ def createPrediction(userid):
     match = session.query(Match).filter(Match.matchid == data['matchid'])[0]
 
     penalty_winners = 1
-    if 'penalty_winners' in data:
-        penalty_winners = data['penalty_winners']
-    else:
-        if getattr(match, 'is_knockout'):
+    if getattr(match, 'is_knockout'):
+        if 'penalty_winners' in data:
+            penalty_winners = data['penalty_winners']
+        else:
             return jsonify({
                 'success': False,
                 'message': 'Must specify field \'penalty_winners\''
