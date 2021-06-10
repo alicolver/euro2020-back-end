@@ -201,6 +201,8 @@ def format_matches(matches, userid):
                 "match_date": getattr(match, 'match_date').isoformat(),
                 "kick_off_time": getattr(match, 'kick_off_time').isoformat(),
                 "is_knockout": getattr(match, 'is_knockout'),
+                "team_one_goals": getattr(match, 'team_one_goals'),
+                "team_two_goals": getattr(match, 'team_two_goals'),
                 "matchid": matchid
             },
             "hasPrediction": hasPrediction,
