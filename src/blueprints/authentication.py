@@ -146,7 +146,7 @@ def validateToken(userid):
 
 @authentication.route('/is-admin', methods=["GET"])
 @admin_required
-def isAdmin(userid):
+def isAdmin():
     return jsonify({
         'success': True
     })
