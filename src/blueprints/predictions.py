@@ -181,8 +181,6 @@ def format_matches(matches, userid):
     for match in matches:
         hasPrediction = has_prediction(match, userid)
         matchid = getattr(match, 'matchid')
-        if check_kicked_off(matchid):
-            continue
 
         team_one_id = getattr(match, 'team_one_id')
         team_two_id = getattr(match, 'team_two_id')
@@ -235,7 +233,13 @@ def getUnpredictedMatches(userid):
     matches = session.query(Match).filter(
         Match.match_date >= today).filter(Match.match_date <= tomorrow).all()
 
-    results = format_matches(matches, userid)
+    filtered_matches = []
+    for match in matches:
+        matchid = getattr(match, 'matchid')
+        if not check_kicked_off(matchid):
+            filtered_matches.append(match)
+
+    results = format_matches(filtered_matches, userid)
 
     return jsonify({
         "success": True,

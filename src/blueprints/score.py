@@ -6,58 +6,11 @@ from database.connection_manager import Session
 from blueprints.authentication import admin_required
 from database.orm import Match, Prediction
 from blueprints.predictions import check_kicked_off
+
 session = Session()
 
 
 scores = Blueprint('scores', __name__)
-
-
-@scores.route('/get-live-games', methods=['get'])
-@admin_required
-def getLiveGames():
-    today = datetime.today()
-    today = datetime(today.year, today.month, today.day, today.hours, today.seconds)
-
-    matches = session.query(Match).filter(
-        Match.match_date == today).filter(not Match.is_fulltime).all()
-
-    results = []
-
-    for match in matches:
-        matchid = getattr(match, 'matchid')
-        if not check_kicked_off(matchid):
-            continue
-
-        team_one_id = getattr(match, 'team_one_id')
-        team_two_id = getattr(match, 'team_two_id')
-
-        team_one = session.query(Team).filter(Team.teamid == team_one_id)[0]
-        team_two = session.query(Team).filter(Team.teamid == team_two_id)[0]
-
-        match_formated = {
-            "team_one": {
-                "name": getattr(team_one, 'name'),
-                "emoji": getattr(team_one, 'emoji')
-            },
-            "team_two": {
-                "name": getattr(team_two, 'name'),
-                "emoji": getattr(team_two, 'emoji')
-            },
-            "match": {
-                "match_date": getattr(match, 'match_date').isoformat(),
-                "kick_off_time": getattr(match, 'kick_off_time').isoformat(),
-                "is_knockout": getattr(match, 'is_knockout'),
-                "matchid": matchid
-            }
-        }
-
-        results.append(match_formated)
-
-    return jsonify({
-        "success": True,
-        "matches": results
-    })
-
 
 
 @scores.route('/score', methods=['put'])
@@ -144,30 +97,3 @@ def calculate_user_score(user):
         if getattr(prediction, 'correct_result'):
             correct_results += 1
     return score, correct_scores, correct_results
-
-
-@scores.route('/match/end', methods=['post'])
-@admin_required
-def endMatch():
-    data = request.get_json()
-
-    already = session.query(exists().where(
-        Match.matchid == data['matchid'])).scalar()
-
-    if not already:
-        return jsonify({
-            'success': False,
-            'message': 'Match does not exist'
-        }), 404
-
-    match = session.query(Match).filter(
-        Match.matchid == data['matchid'])[0]
-
-    setattr(match, "is_fulltime", True)
-
-    session.commit()
-
-    return jsonify({
-        'success': True,
-        'message': 'Match ended'
-    })
