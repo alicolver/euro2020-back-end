@@ -41,10 +41,11 @@ def createPrediction(userid):
         Prediction.userid == userid).where(Prediction.matchid == data['matchid'])).scalar()
 
     if already:
+        update_prediction(userid, data)
         return jsonify({
-            'success': False,
-            'message': 'Prediction already exists'
-        }), 409
+            'success': True,
+            'message': 'Prediction updated'
+        })
 
     if check_kicked_off(data['matchid']):
         return jsonify({
@@ -122,6 +123,28 @@ def getPrediction(userid):
         'success': True,
         'prediction': object_as_dict(prediction)
     })
+
+
+def update_prediction(userid, data):
+    prediction = session.query(Prediction).filter(
+        Prediction.matchid == data['matchid']).filter(Prediction.userid == userid)[0]
+
+    for key, value in data.items():
+        if key in ['penalty_winners', 'team_one_pred', 'team_two_pred']:
+            setattr(prediction, key, value)
+
+    winner = 1
+    team_one_pred = getattr(prediction, 'team_one_pred')
+    team_two_pred = getattr(prediction, 'team_two_pred')
+    penalty_winners = getattr(prediction, 'penalty_winners')
+    if team_one_pred < team_two_pred:
+        winner = 2
+    elif team_one_pred == team_two_pred:
+        winner = penalty_winners
+
+    setattr(prediction, 'team_to_progress', winner)
+
+    session.commit()
 
 
 @predictions.route('/prediction', methods=['PUT'])
