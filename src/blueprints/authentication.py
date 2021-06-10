@@ -5,6 +5,8 @@ import math
 import random
 from flask import Blueprint, jsonify, request
 from datetime import datetime, timedelta
+
+from sqlalchemy.sql.expression import false
 from database.orm import User
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy import desc
@@ -139,6 +141,25 @@ def admin_required(endpoint):
 def validateToken(userid):
     return jsonify({
         'success': True
+    })
+
+
+@authentication.route('/check-admin', methods=['GET'])
+@auth_required
+def is_admin(userid):
+    userid = get_userid(request.headers['Authenticate'])
+
+    if not isinstance(userid, numbers.Number):
+        return jsonify({
+            'success': False
+        }), 403
+
+    user = session.query(User).filter(User.userid == userid)[0]
+
+    admin = getattr(user, 'admin')
+
+    return jsonify({
+        'success': admin
     })
 
 
