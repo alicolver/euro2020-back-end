@@ -33,7 +33,7 @@ def getLiveGames(userid):
     tomorrow = today + timedelta(1)
 
     matches = session.query(Match).filter(
-        Match.match_date >= today).filter(Match.match_date <= tomorrow).all()
+        Match.match_date >= today).filter(Match.match_date <= tomorrow).filter(Match.is_fulltime == False).all()
 
     filtered_matches = []
     for match in matches:
