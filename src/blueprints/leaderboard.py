@@ -11,7 +11,7 @@ leaderboard = Blueprint('leaderboard', __name__)
 
 
 @leaderboard.route('/leaderboard', methods=['GET'])
-@auth_required()
+@auth_required
 def getLeaderboard(userid):
     users = session.query(User).filter(User.hidden == False).all()
     users_formated = []
