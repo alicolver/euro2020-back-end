@@ -227,7 +227,7 @@ def format_matches(matches, userid):
 def getUnpredictedMatches(userid):
 
     timezone = pytz.timezone('Europe/London')
-    today = datetime.today()
+    today = datetime.today(timezone)
     today = datetime(today.year, today.month, today.day)
 
     tomorrow = today + timedelta(1)
