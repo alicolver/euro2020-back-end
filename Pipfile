@@ -6,6 +6,7 @@ verify_ssl = true
 [packages]
 sqlalchemy= "*"
 flask= "*"
+flask_mail = "*"
 flask_cors = "*"
 flake8 = "*"
 pyjwt = "*"

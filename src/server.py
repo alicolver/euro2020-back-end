@@ -5,6 +5,7 @@ from blueprints.predictions import predictions
 from blueprints.score import scores
 from blueprints.leaderboard import leaderboard
 from blueprints.matches import matches
+import os
 
 app = Flask(__name__)
 
@@ -18,6 +19,12 @@ CORS(app)
 
 app.config['CORS_HEADERS'] = 'Content-Type'
 
+app.config['MAIL_SERVER']='smtp.gmail.com'
+app.config['MAIL_PORT'] = 465
+app.config['MAIL_USERNAME'] = 'euros2020predictions@gmail.com'
+app.config['MAIL_PASSWORD'] = os.getenv('EMAIL_PASSWORD')
+app.config['MAIL_USE_TLS'] = True
+app.config['MAIL_USE_SSL'] = False
 
 @app.route('/')
 def index():
@@ -26,3 +33,4 @@ def index():
 
 if __name__ == '__main__':
     app.run(debug=False, host='0.0.0.0')
+    
