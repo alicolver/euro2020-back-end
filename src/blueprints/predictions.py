@@ -53,12 +53,6 @@ def createPrediction(userid):
             'message': 'Match has started'
         }), 400
 
-    winner = 1
-    if data['team_one_pred'] < data['team_two_pred']:
-        winner = 2
-    elif data['team_one_pred'] == data['team_two_pred']:
-        winner = data['penalty_winners']
-
     match = session.query(Match).filter(Match.matchid == data['matchid'])[0]
 
     penalty_winners = 1
@@ -70,6 +64,12 @@ def createPrediction(userid):
                 'success': False,
                 'message': 'Must specify field \'penalty_winners\''
             }), 400
+
+    winner = 1
+    if data['team_one_pred'] < data['team_two_pred']:
+        winner = 2
+    elif data['team_one_pred'] == data['team_two_pred']:
+        winner = penalty_winners
 
     prediction = Prediction(
         userid=userid,
