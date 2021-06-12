@@ -5,6 +5,7 @@ from blueprints.predictions import predictions
 from blueprints.score import scores
 from blueprints.leaderboard import leaderboard
 from blueprints.matches import matches
+from blueprints.notifications import notifications
 import os
 
 app = Flask(__name__)
@@ -14,6 +15,7 @@ app.register_blueprint(predictions)
 app.register_blueprint(scores)
 app.register_blueprint(leaderboard)
 app.register_blueprint(matches)
+app.register_blueprint(notifications)
 
 CORS(app)
 
@@ -33,4 +35,4 @@ def index():
 
 if __name__ == '__main__':
     app.run(debug=False, host='0.0.0.0')
-    
+
