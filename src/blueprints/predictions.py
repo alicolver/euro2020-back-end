@@ -233,7 +233,7 @@ def getUnpredictedMatches(userid):
     tomorrow = today + timedelta(1)
 
     matches = session.query(Match).filter(
-        Match.match_date >= today).filter(Match.match_date <= tomorrow).all()
+        Match.match_date >= today).filter(Match.match_date <= tomorrow).order_by(Match.match_date.asc(), Match.kick_off_time.asc()).all()
 
     filtered_matches = []
     for match in matches:
