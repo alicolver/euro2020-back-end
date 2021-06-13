@@ -216,6 +216,7 @@ def format_matches(matches, userid):
                 "team_one_pred": getattr(prediction, 'team_one_pred'),
                 "team_two_pred": getattr(prediction, 'team_two_pred'),
                 "predictionid": getattr(prediction, 'predictionid'),
+                "score": getattr(prediction, 'score'),
             }
 
         results.append(match_formated)

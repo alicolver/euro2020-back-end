@@ -239,7 +239,7 @@ def reset_password():
         session.rollback()
         return jsonify({
             'success': False,
-            'message': 'unknown'
+            'message': str(e)
         })
 
     else:
