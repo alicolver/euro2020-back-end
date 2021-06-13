@@ -25,6 +25,7 @@ class User(Base):
     def check_password(self, password):
         return pbkdf2_sha256.verify(password, self.password)
 
+
 class PasswordReset(Base):
     __tablename__ = 'passwordreset'
 
@@ -38,6 +39,7 @@ class PasswordReset(Base):
 
     def check_password(self, password):
         return pbkdf2_sha256.verify(password, self.password)
+
 
 class Team(Base):
     __tablename__ = 'teams'

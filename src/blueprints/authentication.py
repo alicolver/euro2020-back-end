@@ -151,6 +151,7 @@ def isAdmin():
         'success': True
     })
 
+
 @authentication.route('/reset-password', methods=["GET"])
 def request_reset():
     try:
@@ -165,14 +166,16 @@ def request_reset():
                 'message': 'User does not exist',
             })
 
-        random_sequence = [str(math.floor(random.random() * 10)) for _ in range(6)]
+        random_sequence = [str(math.floor(random.random() * 10))
+                           for _ in range(6)]
         otp = ''.join(random_sequence)
 
         hashed_otp = pbkdf2_sha256.hash(otp)
 
         expiry = datetime.now() + timedelta(hours=4)
 
-        passwordResetEntry = PasswordReset(email=email, one_time_password=hashed_otp, expiry_time=expiry, has_reset=False)
+        passwordResetEntry = PasswordReset(
+            email=email, one_time_password=hashed_otp, expiry_time=expiry, has_reset=False)
 
         reset_password_email(otp, user_query[0].email, user_query[0].name)
 
@@ -204,11 +207,17 @@ def reset_password():
         email = request_json["email"]
         new_password = request_json["password"]
         one_time_password = request_json["otp"]
-         
+
         user = session.query(User).filter(User.email == email)[0]
 
         passwordResetInfo = session.query(PasswordReset).filter(PasswordReset.email == email).order_by(
             desc(PasswordReset.expiry_time))[0]
+
+        if (passwordResetInfo.has_reset):
+            return jsonify({
+                'success': False,
+                'message': 'OTP already used'
+            })
 
         if (passwordResetInfo.expiry_time < datetime.now()):
             return jsonify({
