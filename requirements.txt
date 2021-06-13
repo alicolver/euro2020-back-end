@@ -7,3 +7,4 @@ passlib
 requests
 psycopg2
 pytz
+typing

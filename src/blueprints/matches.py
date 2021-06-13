@@ -27,7 +27,7 @@ def endedMatches(userid):
 @auth_required
 def getLiveGames(userid):
     timezone = pytz.timezone('Europe/London')
-    today = datetime.today()
+    today = datetime.now(timezone)
     today = datetime(today.year, today.month, today.day)
 
     tomorrow = today + timedelta(1)
