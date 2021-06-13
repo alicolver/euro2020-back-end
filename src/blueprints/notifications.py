@@ -40,7 +40,7 @@ def check_upcoming_games():
 
         current_time = datetime.now(timezone)
 
-        if combined < (current_time + timedelta(hours = 1, minutes=59)) and not check_kicked_off(match.matchid):
+        if combined < (current_time + timedelta(hours = 1)) and not check_kicked_off(match.matchid):
             check_user_prediction(match)
     return jsonify({"message": "no games in the next hour"})
 
