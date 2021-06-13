@@ -7,10 +7,10 @@ from flask import Blueprint, jsonify, request
 from datetime import datetime, timedelta
 
 from sqlalchemy.sql.expression import false
-from database.orm import User
+from database.orm import User, PasswordReset
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy import desc
-from utils.users import get_userid
+from utils.users import get_userid, reset_password_email
 from utils.environment_variables import JWT_ALGORITHM, JWT_KEY
 from passlib.hash import pbkdf2_sha256
 from database.connection_manager import Session
@@ -151,90 +151,100 @@ def isAdmin():
         'success': True
     })
 
-# @authentication.route('/requestPasswordReset', methods=["POST"])
-# def request_reset():
-#     try:
-#         email = request.get_json()["email"]
 
-#         user_query = session.query(PageupUser).filter(PageupUser.email == email)
+@authentication.route('/reset-password', methods=["GET"])
+def request_reset():
+    try:
+        email = request.get_json()["email"]
 
-#         if not user_query[0]:
-#             return jsonify({
-#                 'success': False,
-#                 'error': 'email',
-#                 'message': '',
-#             })
+        user_query = session.query(User).filter(User.email == email)
 
-#         random_sequence = [str(math.floor(random.random() * 10)) for _ in range(6)]
-#         otp = ''.join(random_sequence)
+        if not user_query[0]:
+            return jsonify({
+                'success': False,
+                'error': 'email',
+                'message': 'User does not exist',
+            })
 
-#         hashed_otp = pbkdf2_sha256.hash(otp)
+        random_sequence = [str(math.floor(random.random() * 10))
+                           for _ in range(6)]
+        otp = ''.join(random_sequence)
 
-#         expiry = datetime.now() + timedelta(hours=4)
+        hashed_otp = pbkdf2_sha256.hash(otp)
 
-#         passwordResetEntry = PageupPasswordReset(email=email, one_time_password=hashed_otp, expiry_time=expiry, has_reset=False)
+        expiry = datetime.now() + timedelta(hours=4)
 
-#         reset_password_email(otp, user_query[0].email, user_query[0].name)
+        passwordResetEntry = PasswordReset(
+            email=email, one_time_password=hashed_otp, expiry_time=expiry, has_reset=False)
 
-#         session.add(passwordResetEntry)
-#         session.flush()
+        reset_password_email(otp, user_query[0].email, user_query[0].name)
 
-#     except Exception as e:
-#         print(e)
-#         return jsonify({
-#             'success': False,
-#             'error': 'unknown',
-#             'message': str(e),
-#         })
+        session.add(passwordResetEntry)
+        session.flush()
 
-#     else:
-#         session.commit()
-#         return jsonify({
-#             'success': True,
-#             'error': 'none',
-#             'message': '',
-#         })
+    except Exception as e:
+        print(e)
+        return jsonify({
+            'success': False,
+            'error': 'unknown',
+            'message': str(e),
+        })
+
+    else:
+        session.commit()
+        return jsonify({
+            'success': True,
+            'error': 'none',
+            'message': '',
+        })
 
 
-# @authentication.route('/resetPassword', methods=["POST"])
-# def reset_password():
-#     try:
-#         request_json = request.get_json()
+@authentication.route('/reset-password', methods=["POST"])
+def reset_password():
+    try:
+        request_json = request.get_json()
 
-#         email = request_json["email"]
-#         new_password = request_json["password"]
-#         one_time_password = request_json["otp"]
+        email = request_json["email"]
+        new_password = request_json["password"]
+        one_time_password = request_json["otp"]
 
-#         user = session.query(PageupUser).filter(PageupUser.email == email)[0]
+        user = session.query(User).filter(User.email == email)[0]
 
-#         passwordResetInfo = session.query(PageupPasswordReset).filter(PageupPasswordReset.email == email).order_by(
-#             desc(PageupPasswordReset.expiry_time))[0]
+        passwordResetInfo = session.query(PasswordReset).filter(PasswordReset.email == email).order_by(
+            desc(PasswordReset.expiry_time))[0]
 
-#         if (passwordResetInfo.expiry_time < datetime.now()):
-#             return jsonify({
-#                 'success': False,
-#                 'message': 'expired'
-#             })
+        if (passwordResetInfo.has_reset):
+            return jsonify({
+                'success': False,
+                'message': 'OTP already used'
+            })
 
-#         if not pbkdf2_sha256.verify(one_time_password, passwordResetInfo.one_time_password):
-#             return jsonify({
-#                 'success': False,
-#                 'message': 'otp'
-#             })
+        if (passwordResetInfo.expiry_time < datetime.now()):
+            return jsonify({
+                'success': False,
+                'message': 'expired'
+            })
 
-#         passwordResetInfo.has_reset = True
-#         user.set_password(new_password)
+        if not pbkdf2_sha256.verify(one_time_password, passwordResetInfo.one_time_password):
+            return jsonify({
+                'success': False,
+                'message': 'otp'
+            })
 
-#     except Exception as e:
-#         print(e)
-#         session.rollback()
-#         return jsonify({
-#             'success': False,
-#             'message': 'unknown'
-#         })
+        passwordResetInfo.has_reset = True
+        user.set_password(new_password)
 
-#     else:
-#         session.commit()
-#         return jsonify({
-#             'success': True
-#         })
+    except Exception as e:
+        print(e)
+        session.rollback()
+        return jsonify({
+            'success': False,
+            'message': 'unknown'
+        })
+
+    else:
+        session.commit()
+        return jsonify({
+            'success': True,
+            'message': 'password updated successfully'
+        })
