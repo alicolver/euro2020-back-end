@@ -152,7 +152,7 @@ def isAdmin():
     })
 
 
-@authentication.route('/reset-password', methods=["GET"])
+@authentication.route('/reset-password', methods=["POST"])
 def request_reset():
     try:
         email = request.get_json()["email"]
@@ -199,7 +199,7 @@ def request_reset():
         })
 
 
-@authentication.route('/reset-password', methods=["POST"])
+@authentication.route('/reset-password', methods=["PUT"])
 def reset_password():
     try:
         request_json = request.get_json()
