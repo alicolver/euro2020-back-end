@@ -25,6 +25,19 @@ class User(Base):
     def check_password(self, password):
         return pbkdf2_sha256.verify(password, self.password)
 
+class PasswordReset(Base):
+    __tablename__ = 'users'
+
+    email = Column(String(255), nullable=False)
+    one_time_password = Column(String(255), nullable=False)
+    expiry_time = Column(DateTime, nullable=False)
+    has_reset = Column(Boolean, nullable=False, default=False)
+
+    def set_password(self, password):
+        self.password = pbkdf2_sha256.hash(password)
+
+    def check_password(self, password):
+        return pbkdf2_sha256.verify(password, self.password)
 
 class Team(Base):
     __tablename__ = 'teams'
