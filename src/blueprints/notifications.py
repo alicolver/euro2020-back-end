@@ -1,4 +1,4 @@
-from database.orm import Prediction, Match
+from database.orm import Prediction, Match, User
 from sqlalchemy.sql import exists
 from flask_mail import Mail, Message
 from datetime import datetime, timedelta
@@ -6,6 +6,8 @@ import pytz
 from blueprints.predictions import check_kicked_off
 from database.connection_manager import Session
 from flask import Blueprint, jsonify
+from typing import TYPE_CHECKING
+from server import app
 
 session = Session()
 
@@ -38,17 +40,17 @@ def check_upcoming_games():
 
         current_time = datetime.now(timezone)
 
-        if combined < (current_time + timedelta(hours = 1, minutes=59)) and not check_kicked_off(match.matchid):
-            check_user_prediction(match.matchid)
+        if combined < (current_time + timedelta(hours = 5, minutes=59)) and not check_kicked_off(match.matchid):
+            check_user_prediction(match)
     return jsonify({"message": "no games in the next hour"})
 
 def check_user_prediction(match):
-    users = session.query(User).filter(User.hidden == False).all()
+    #users = session.query(User).filter(User.hidden == False).all()
+    users = session.query(User).filter(User.hidden == False).filter(User.email == "simon.james.archer@gmail.com").all()
     for user in users:
-        if not session.query(exists().where(Prediction.userid == userid).where(Prediction.matchid == match.matchid)).scalar():
+        if not session.query(exists().where(Prediction.userid == user.userid).where(Prediction.matchid == match.matchid)).scalar():
             send_email_reminder(user, match)
-            return jsonify({"message": "Emails sent"})
-    return jsonify({"message": "No emails sent"})
+    return jsonify({"message": "Reminder emails sent"})
 
 def send_email_reminder(user, matchid):
     mail = Mail(app)
@@ -59,3 +61,4 @@ def send_email_reminder(user, matchid):
         game = "{} vs {}".format(match.teamone.name, match.teamtwo.name)
     )
     mail.send(msg)
+    
