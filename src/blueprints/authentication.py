@@ -7,7 +7,7 @@ from flask import Blueprint, jsonify, request
 from datetime import datetime, timedelta
 
 from sqlalchemy.sql.expression import false
-from database.orm import User
+from database.orm import User, PasswordReset
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy import desc
 from utils.users import get_userid, reset_password_email

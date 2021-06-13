@@ -26,11 +26,11 @@ class User(Base):
         return pbkdf2_sha256.verify(password, self.password)
 
 class PasswordReset(Base):
-    __tablename__ = 'users'
+    __tablename__ = 'passwordreset'
 
-    email = Column(String(255), nullable=False)
+    email = Column(String(255), nullable=False, primary_key=True)
     one_time_password = Column(String(255), nullable=False)
-    expiry_time = Column(DateTime, nullable=False)
+    expiry_time = Column(DateTime, nullable=False, primary_key=True)
     has_reset = Column(Boolean, nullable=False, default=False)
 
     def set_password(self, password):
