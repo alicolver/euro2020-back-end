@@ -151,91 +151,91 @@ def isAdmin():
         'success': True
     })
 
- @authentication.route('/reset-password', methods=["GET"])
- def request_reset():
-     try:
-         email = request.get_json()["email"]
+@authentication.route('/reset-password', methods=["GET"])
+def request_reset():
+    try:
+        email = request.get_json()["email"]
 
-         user_query = session.query(User).filter(User.email == email)
+        user_query = session.query(User).filter(User.email == email)
 
-         if not user_query[0]:
-             return jsonify({
-                 'success': False,
-                 'error': 'email',
-                 'message': 'User does not exist',
-             })
+        if not user_query[0]:
+            return jsonify({
+                'success': False,
+                'error': 'email',
+                'message': 'User does not exist',
+            })
 
-         random_sequence = [str(math.floor(random.random() * 10)) for _ in range(6)]
-         otp = ''.join(random_sequence)
+        random_sequence = [str(math.floor(random.random() * 10)) for _ in range(6)]
+        otp = ''.join(random_sequence)
 
-         hashed_otp = pbkdf2_sha256.hash(otp)
+        hashed_otp = pbkdf2_sha256.hash(otp)
 
-         expiry = datetime.now() + timedelta(hours=4)
+        expiry = datetime.now() + timedelta(hours=4)
 
-         passwordResetEntry = PasswordReset(email=email, one_time_password=hashed_otp, expiry_time=expiry, has_reset=False)
+        passwordResetEntry = PasswordReset(email=email, one_time_password=hashed_otp, expiry_time=expiry, has_reset=False)
 
-         reset_password_email(otp, user_query[0].email, user_query[0].name)
+        reset_password_email(otp, user_query[0].email, user_query[0].name)
 
-         session.add(passwordResetEntry)
-         session.flush()
+        session.add(passwordResetEntry)
+        session.flush()
 
-     except Exception as e:
-         print(e)
-         return jsonify({
-             'success': False,
-             'error': 'unknown',
-             'message': str(e),
-         })
+    except Exception as e:
+        print(e)
+        return jsonify({
+            'success': False,
+            'error': 'unknown',
+            'message': str(e),
+        })
 
-     else:
-         session.commit()
-         return jsonify({
-             'success': True,
-             'error': 'none',
-             'message': '',
-         })
+    else:
+        session.commit()
+        return jsonify({
+            'success': True,
+            'error': 'none',
+            'message': '',
+        })
 
 
- @authentication.route('/reset-password', methods=["POST"])
- def reset_password():
-     try:
-         request_json = request.get_json()
+@authentication.route('/reset-password', methods=["POST"])
+def reset_password():
+    try:
+        request_json = request.get_json()
 
-         email = request_json["email"]
-         new_password = request_json["password"]
-         one_time_password = request_json["otp"]
+        email = request_json["email"]
+        new_password = request_json["password"]
+        one_time_password = request_json["otp"]
+         
+        user = session.query(User).filter(User.email == email)[0]
 
-         user = session.query(User).filter(User.email == email)[0]
+        passwordResetInfo = session.query(PasswordReset).filter(PasswordReset.email == email).order_by(
+            desc(PasswordReset.expiry_time))[0]
 
-         passwordResetInfo = session.query(PasswordReset).filter(PasswordReset.email == email).order_by(
-             desc(PasswordReset.expiry_time))[0]
+        if (passwordResetInfo.expiry_time < datetime.now()):
+            return jsonify({
+                'success': False,
+                'message': 'expired'
+            })
 
-         if (passwordResetInfo.expiry_time < datetime.now()):
-             return jsonify({
-                 'success': False,
-                 'message': 'expired'
-             })
+        if not pbkdf2_sha256.verify(one_time_password, passwordResetInfo.one_time_password):
+            return jsonify({
+                'success': False,
+                'message': 'otp'
+            })
 
-         if not pbkdf2_sha256.verify(one_time_password, passwordResetInfo.one_time_password):
-             return jsonify({
-                 'success': False,
-                 'message': 'otp'
-             })
+        passwordResetInfo.has_reset = True
+        user.set_password(new_password)
 
-         passwordResetInfo.has_reset = True
-         user.set_password(new_password)
+    except Exception as e:
+        print(e)
+        session.rollback()
+        return jsonify({
+            'success': False,
+            'message': 'unknown'
+        })
 
-     except Exception as e:
-         print(e)
-         session.rollback()
-         return jsonify({
-             'success': False,
-             'message': 'unknown'
-         })
-
-     else:
-         session.commit()
-         return jsonify({
-             'success': True,
-             'message': 'password updated successfully'
-         })
+    else:
+        session.commit()
+        return jsonify({
+            'success': True,
+            'message': 'password updated successfully'
+        })

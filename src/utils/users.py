@@ -22,7 +22,7 @@ def get_userid(jwt_token):
         return payload['user_id']
 
 
- def reset_password_email(otp, receiver_email, name):
+def reset_password_email(otp, receiver_email, name):
     msg = Message("Subject", sender = "euros2020predictions@gmail.com", recipients = [receiver_email])
     
     msg.body = ("""
