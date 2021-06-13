@@ -4,8 +4,6 @@ import smtplib
 import ssl
 from flask import jsonify
 from flask_mail import Mail, Message
-from email.mime.text import MIMEText
-from email.mime.multipart import MIMEMultipart
 from utils.environment_variables import JWT_KEY, JWT_ALGORITHM
 from utils.mail_init import mail_object
 
@@ -25,7 +23,7 @@ def get_userid(jwt_token):
 def reset_password_email(otp, receiver_email, name):
     msg = Message("Subject", sender = "euros2020predictions@gmail.com", recipients = [receiver_email])
     
-    msg.body = ("""
+    msg.html = ("""
      <html>
          <head>
          <h1>Your EURO 2020 Password Reset Code</h1>
