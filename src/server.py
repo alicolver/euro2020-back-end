@@ -24,14 +24,15 @@ CORS(app)
 
 app.config['CORS_HEADERS'] = 'Content-Type'
 
-app.config['MAIL_SERVER']='smtp.gmail.com'
+app.config['MAIL_SERVER'] = 'smtp.gmail.com'
 app.config['MAIL_PORT'] = 465
 app.config['MAIL_USERNAME'] = 'euros2020predictions@gmail.com'
-app.config['MAIL_PASSWORD'] = os.getenv['EMAIL_PASSWORD']
+app.config['MAIL_PASSWORD'] = os.environ['EMAIL_PASSWORD']
 app.config['MAIL_USE_TLS'] = False
 app.config['MAIL_USE_SSL'] = True
 
 mail_object.init_app(app)
+
 
 @app.route('/')
 def index():
@@ -40,4 +41,3 @@ def index():
 
 if __name__ == '__main__':
     app.run(debug=False, host='0.0.0.0')
-
