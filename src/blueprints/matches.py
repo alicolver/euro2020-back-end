@@ -15,7 +15,7 @@ matches = Blueprint('matches', __name__)
 @matches.route('/match/ended', methods=['get'])
 @auth_required
 def endedMatches(userid):
-    matches = session.query(Match).filter(Match.is_fulltime).all()
+    matches = session.query(Match).filter(Match.is_fulltime).order_by(Match.match_date.asc(), Match.kick_off_time.asc()).all()
     results = format_matches(matches, userid)
     return jsonify({
         "success": True,
