@@ -27,7 +27,7 @@ app.config['CORS_HEADERS'] = 'Content-Type'
 app.config['MAIL_SERVER']='smtp.gmail.com'
 app.config['MAIL_PORT'] = 465
 app.config['MAIL_USERNAME'] = 'euros2020predictions@gmail.com'
-app.config['MAIL_PASSWORD'] = 'Simon123!'
+app.config['MAIL_PASSWORD'] = os.getenv['EMAIL_PASSWORD']
 app.config['MAIL_USE_TLS'] = False
 app.config['MAIL_USE_SSL'] = True
 
