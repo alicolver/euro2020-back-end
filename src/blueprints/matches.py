@@ -15,7 +15,8 @@ matches = Blueprint('matches', __name__)
 @matches.route('/match/ended', methods=['get'])
 @auth_required
 def endedMatches(userid):
-    matches = session.query(Match).filter(Match.is_fulltime).order_by(Match.match_date.desc(), Match.kick_off_time.desc()).all()
+    matches = session.query(Match).filter(
+        Match.is_fulltime).order_by(Match.match_datetime.desc()).all()
     results = format_matches(matches, userid)
     return jsonify({
         "success": True,
@@ -27,21 +28,15 @@ def endedMatches(userid):
 @auth_required
 def getLiveGames(userid):
     timezone = pytz.timezone('Europe/London')
-    today = datetime.now(timezone)
-    today = datetime(today.year, today.month, today.day)
+    now = datetime.now(timezone)
+    today = datetime(now.year, now.month, now.day)
 
     tomorrow = today + timedelta(1)
 
     matches = session.query(Match).filter(
-        Match.match_date >= today).filter(Match.match_date <= tomorrow).filter(Match.is_fulltime == False).all()
+        Match.match_datetime < now).filter(Match.is_fulltime == False).all()
 
-    filtered_matches = []
-    for match in matches:
-        matchid = getattr(match, 'matchid')
-        if check_kicked_off(matchid):
-            filtered_matches.append(match)
-
-    results = format_matches(filtered_matches, userid)
+    results = format_matches(matches, userid)
 
     return jsonify({
         "success": True,

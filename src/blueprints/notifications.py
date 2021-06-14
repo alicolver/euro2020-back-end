@@ -28,21 +28,14 @@ Good luck!
 def check_upcoming_games():
 
     timezone = pytz.timezone('Europe/London')
-    today = datetime.today()
-    today = datetime(today.year, today.month, today.day)
+    now = datetime.now(timezone)
+    hour = now + timedelta(hours=1)
 
-    matches = session.query(Match).filter(Match.match_date == today).all()
+    matches = session.query(Match).filter(
+        Match.match_datetime > now).filter(Match.match_datetime < hour).all()
 
     for match in matches:
-        kick_off = getattr(match, 'kick_off_time')
-        match_date = getattr(match, 'match_date')
-        combined = datetime.combine(match_date, kick_off)
-        combined = timezone.localize(combined)
-
-        current_time = datetime.now(timezone)
-
-        if combined < (current_time + timedelta(hours=1)) and not check_kicked_off(match.matchid):
-            check_user_prediction(match)
+        check_user_prediction(match)
     return jsonify({"message": "no games in the next hour"})
 
 

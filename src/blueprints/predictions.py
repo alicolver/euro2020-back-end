@@ -20,15 +20,9 @@ def check_kicked_off(matchid):
 
     timezone = pytz.timezone('Europe/London')
 
-    kick_off = getattr(match, 'kick_off_time')
-    match_date = getattr(match, 'match_date')
-
-    combined = datetime.combine(match_date, kick_off)
-    combined = timezone.localize(combined)
-
     current_time = datetime.now(timezone)
 
-    return combined < current_time
+    return match.match_datetime < current_time
 
 
 @predictions.route('/prediction', methods=['POST'])
@@ -198,8 +192,8 @@ def format_matches(matches, userid):
                 "emoji": getattr(team_two, 'emoji')
             },
             "match": {
-                "match_date": getattr(match, 'match_date').isoformat(),
-                "kick_off_time": getattr(match, 'kick_off_time').isoformat(),
+                "match_date": getattr(match, 'match_datetime').strftime("%d"),
+                "kick_off_time": getattr(match, 'kick_off_time').strftime("%H:%M"),
                 "is_knockout": getattr(match, 'is_knockout'),
                 "team_one_goals": getattr(match, 'team_one_goals'),
                 "team_two_goals": getattr(match, 'team_two_goals'),
@@ -228,21 +222,15 @@ def format_matches(matches, userid):
 def getUnpredictedMatches(userid):
 
     timezone = pytz.timezone('Europe/London')
-    today = datetime.now(timezone)
-    today = datetime(today.year, today.month, today.day)
+    now = datetime.now(timezone)
+    today = datetime(now.year, now.month, now.day)
 
-    tomorrow = today + timedelta(1)
+    tomorrow = today + timedelta(2)
 
     matches = session.query(Match).filter(
-        Match.match_date >= today).filter(Match.match_date <= tomorrow).order_by(Match.match_date.asc(), Match.kick_off_time.asc()).all()
+        Match.match_datetime >= now).filter(Match.match_datetime <= tomorrow).order_by(Match.match_datetime.asc()).all()
 
-    filtered_matches = []
-    for match in matches:
-        matchid = getattr(match, 'matchid')
-        if not check_kicked_off(matchid):
-            filtered_matches.append(match)
-
-    results = format_matches(filtered_matches, userid)
+    results = format_matches(matches, userid)
 
     return jsonify({
         "success": True,

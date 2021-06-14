@@ -61,7 +61,7 @@ class Match(Base):
     match_date = Column(Date, nullable=False)
     kick_off_time = Column(Time, nullable=False)
     is_knockout = Column(Boolean, nullable=False)
-    match_datetime = Column(DateTime, nullable=False)
+    match_datetime = Column(DateTime(timezone=True), nullable=False)
     team_one = relationship("Team", foreign_keys=[team_one_id])
     team_two = relationship("Team", foreign_keys=[team_two_id])
 
