@@ -31,7 +31,7 @@ class PasswordReset(Base):
     passwordresetid = Column(Integer, primary_key=True)
     email = Column(String(255), nullable=False)
     one_time_password = Column(String(255), nullable=False)
-    expiry_time = Column(DateTime, nullable=False, primary_key=True)
+    expiry_time = Column(DateTime, nullable=False)
     has_reset = Column(Boolean, nullable=False, default=False)
 
     def set_password(self, password):
