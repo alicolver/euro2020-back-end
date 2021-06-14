@@ -193,7 +193,7 @@ def format_matches(matches, userid):
             },
             "match": {
                 "match_date": getattr(match, 'match_datetime').strftime("%d"),
-                "kick_off_time": getattr(match, 'kick_off_time').strftime("%H:%M"),
+                "kick_off_time": getattr(match, 'match_datetime').strftime("%H:%M"),
                 "is_knockout": getattr(match, 'is_knockout'),
                 "team_one_goals": getattr(match, 'team_one_goals'),
                 "team_two_goals": getattr(match, 'team_two_goals'),
