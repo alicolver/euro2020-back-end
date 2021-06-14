@@ -28,8 +28,8 @@ class User(Base):
 
 class PasswordReset(Base):
     __tablename__ = 'passwordreset'
-
-    email = Column(String(255), nullable=False, primary_key=True)
+    passwordresetid = Column(Integer, primary_key=True)
+    email = Column(String(255), nullable=False)
     one_time_password = Column(String(255), nullable=False)
     expiry_time = Column(DateTime, nullable=False, primary_key=True)
     has_reset = Column(Boolean, nullable=False, default=False)
