@@ -7,11 +7,9 @@ from blueprints.leaderboard import leaderboard
 from blueprints.matches import matches
 from blueprints.notifications import notifications
 import os
-from utils.mail_init import mail_object
+from utils.mail import registerApp
 
 app = Flask(__name__)
-
-mail_object.init_app(app)
 
 app.register_blueprint(authentication)
 app.register_blueprint(predictions)
@@ -31,7 +29,7 @@ app.config['MAIL_PASSWORD'] = os.environ['EMAIL_PASSWORD']
 app.config['MAIL_USE_TLS'] = False
 app.config['MAIL_USE_SSL'] = True
 
-mail_object.init_app(app)
+registerApp(app)
 
 
 @app.route('/')

@@ -10,7 +10,8 @@ from sqlalchemy.sql.expression import false
 from database.orm import User, PasswordReset
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy import desc
-from utils.users import get_userid, reset_password_email
+from utils.users import get_userid
+from utils.mail import sendPasswordResetEmail
 from utils.environment_variables import JWT_ALGORITHM, JWT_KEY
 from passlib.hash import pbkdf2_sha256
 from database.connection_manager import Session
@@ -177,7 +178,7 @@ def request_reset():
         passwordResetEntry = PasswordReset(
             email=email, one_time_password=hashed_otp, expiry_time=expiry, has_reset=False)
 
-        reset_password_email(otp, user_query[0].email, user_query[0].name)
+        sendPasswordResetEmail(user_query[0].name, user_query[0].email, otp)
 
         session.add(passwordResetEntry)
         session.flush()
