@@ -46,6 +46,7 @@ def login():
 
     payload = {
         'user_id': user.userid,
+        'admin': user.admin,
     }
 
     jwt_token = jwt.encode(payload, JWT_KEY, JWT_ALGORITHM)
