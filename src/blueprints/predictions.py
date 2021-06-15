@@ -7,6 +7,8 @@ from database.orm import Prediction, Match, Team
 from sqlalchemy.exc import SQLAlchemyError
 import pytz
 from datetime import datetime, timedelta, time
+from utils.query import getFullMatchQuery
+from utils.format import format_matches
 
 session = Session()
 
@@ -162,65 +164,6 @@ def deletePrediction(userid):
     })
 
 
-def has_prediction(match, userid):
-    already = session.query(exists().where(
-        Prediction.userid == userid).where(Prediction.matchid == match.matchid)).scalar()
-
-    return already
-
-
-def format_matches(matches, userid):
-    results = []
-
-    for match in matches:
-        hasPrediction = has_prediction(match, userid)
-        matchid = match.matchid
-
-        team_one_id = match.team_one_id
-        team_two_id = match.team_two_id
-
-        team_one = session.query(Team).filter(Team.teamid == team_one_id)[0]
-        team_two = session.query(Team).filter(Team.teamid == team_two_id)[0]
-
-        timezone = pytz.timezone('Europe/London')
-        match_time = match.match_datetime
-        match_time = match_time.replace(tzinfo=pytz.utc).astimezone(timezone)
-
-        match_formated = {
-            "team_one": {
-                "name": team_one.name,
-                "emoji": team_one.emoji
-            },
-            "team_two": {
-                "name": team_two.name,
-                "emoji": team_two.emoji
-            },
-            "match": {
-                "match_date": match_time.strftime("%d"),
-                "kick_off_time": match_time.strftime("%H:%M"),
-                "is_knockout": match.is_knockout,
-                "team_one_goals": match.team_one_goals,
-                "team_two_goals": match.team_two_goals,
-                "matchid": matchid
-            },
-            "hasPrediction": hasPrediction,
-        }
-
-        if hasPrediction:
-            prediction = session.query(Prediction).filter(
-                Prediction.userid == userid).filter(Prediction.matchid == matchid)[0]
-
-            match_formated['prediction'] = {
-                "team_one_pred": prediction.team_one_pred,
-                "team_two_pred": prediction.team_two_pred,
-                "predictionid": prediction.predictionid,
-                "score": prediction.score,
-            }
-
-        results.append(match_formated)
-    return results
-
-
 @ predictions.route('/prediction-required', methods=['GET'])
 @ auth_required
 def getUnpredictedMatches(userid):
@@ -231,8 +174,10 @@ def getUnpredictedMatches(userid):
 
     tomorrow = today + timedelta(2)
 
-    matches = session.query(Match).filter(
-        Match.match_datetime >= now).filter(Match.match_datetime <= tomorrow).order_by(Match.match_datetime.asc()).all()
+    query = getFullMatchQuery(session, userid)
+
+    matches = query.filter(Match.match_datetime >= now).filter(
+        Match.match_datetime <= tomorrow).order_by(Match.match_datetime.asc()).all()
 
     results = format_matches(matches, userid)
 

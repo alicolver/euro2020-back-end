@@ -8,6 +8,7 @@ from database.connection_manager import Session
 from flask import Blueprint, jsonify
 from typing import TYPE_CHECKING
 from utils.mail_init import mail_object
+from utils.query import getUsersMissingGame
 
 session = Session()
 
@@ -31,28 +32,18 @@ def check_upcoming_games():
     now = datetime.now(timezone)
     hour = now + timedelta(hours=1)
 
-    matches = session.query(Match).filter(
-        Match.match_datetime > now).filter(Match.match_datetime < hour).all()
+    sub = session.query(Prediction.userid).join(Match).filter(
+        Match.match_datetime > now).filter(Match.match_datetime < hour).subquery()
 
-    for match in matches:
-        check_user_prediction(match)
-    return jsonify({"message": "no games in the next hour"})
+    rows = getUsersMissingGame(session).all()
 
-
-def check_user_prediction(match):
-    users = session.query(User).filter(User.hidden == False).all()
-    for user in users:
-        if not session.query(exists().where(Prediction.userid == user.userid).where(Prediction.matchid == match.matchid)).scalar():
-            send_email_reminder(user, match)
-    return jsonify({"message": "Reminder emails sent"})
-
-
-def send_email_reminder(user, match):
-    email = user.email
-    msg = Message("Mising Prediction",
-                  sender="euros2020predictions@gmail.com", recipients=[email])
-    msg.body = email_message.format(
-        user=user.name,
-        game="{} vs {}".format(match.team_one.name, match.team_two.name)
-    )
-    mail_object.send(msg)
+    for row in rows:
+        user = row[3]
+        msg = Message("Mising Prediction",
+                      sender="euros2020predictions@gmail.com", recipients=[user.email])
+        msg.body = email_message.format(
+            user=user.name,
+            game="{} vs {}".format(row[1].name, row[2].name)
+        )
+        mail_object.send(msg)
+    return jsonify({"message": str(len(rows)) + " email(s) sent"})

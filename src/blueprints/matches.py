@@ -1,11 +1,14 @@
 from flask import Blueprint, jsonify, request
 from sqlalchemy.sql import exists
+from sqlalchemy.orm import aliased
 from database.connection_manager import Session
 from blueprints.authentication import admin_required, auth_required
 from database.orm import Match, Prediction, Team
-from blueprints.predictions import format_matches, check_kicked_off
+from blueprints.predictions import check_kicked_off, object_as_dict
 import pytz
 from datetime import datetime, timedelta, time
+from utils.query import getFullMatchQuery, getUsersMissingGame
+from utils.format import format_matches
 session = Session()
 
 
@@ -15,8 +18,11 @@ matches = Blueprint('matches', __name__)
 @matches.route('/match/ended', methods=['get'])
 @auth_required
 def endedMatches(userid):
-    matches = session.query(Match).filter(
-        Match.is_fulltime).order_by(Match.match_datetime.desc()).all()
+    query = getFullMatchQuery(session, userid)
+
+    matches = query.filter(Match.is_fulltime).order_by(
+        Match.match_datetime.desc()).all()
+
     results = format_matches(matches, userid)
     return jsonify({
         "success": True,
@@ -24,8 +30,17 @@ def endedMatches(userid):
     })
 
 
-@matches.route('/match/in-progress', methods=['get'])
+@matches.route('/match/test', methods=['get'])
 @auth_required
+def endedMatchesTest(userid):
+    getUsersMissingGame(session)
+    return jsonify({
+        "success": True,
+    })
+
+
+@ matches.route('/match/in-progress', methods=['get'])
+@ auth_required
 def getLiveGames(userid):
     timezone = pytz.timezone('Europe/London')
     now = datetime.now(timezone)
@@ -33,8 +48,10 @@ def getLiveGames(userid):
 
     tomorrow = today + timedelta(1)
 
-    matches = session.query(Match).filter(
-        Match.match_datetime < now).filter(Match.is_fulltime == False).all()
+    query = getFullMatchQuery(session, userid)
+
+    matches = query.filter(Match.match_datetime < now).filter(
+        Match.is_fulltime == False).all()
 
     results = format_matches(matches, userid)
 
@@ -44,8 +61,8 @@ def getLiveGames(userid):
     })
 
 
-@matches.route('/match/end', methods=['put'])
-@admin_required
+@ matches.route('/match/end', methods=['put'])
+@ admin_required
 def endMatch():
     data = request.get_json()
 
