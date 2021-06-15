@@ -61,7 +61,7 @@ def endMatch():
     match = session.query(Match).filter(
         Match.matchid == data['matchid'])[0]
 
-    setattr(match, "is_fulltime", True)
+    match.is_fulltime = True
 
     session.commit()
 

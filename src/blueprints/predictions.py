@@ -50,7 +50,7 @@ def createPrediction(userid):
     match = session.query(Match).filter(Match.matchid == data['matchid'])[0]
 
     penalty_winners = 1
-    if getattr(match, 'is_knockout'):
+    if match.is_knockout:
         if 'penalty_winners' in data:
             penalty_winners = data['penalty_winners']
         else:
@@ -133,15 +133,15 @@ def update_prediction(userid, data):
             setattr(prediction, key, value)
 
     winner = 1
-    team_one_pred = getattr(prediction, 'team_one_pred')
-    team_two_pred = getattr(prediction, 'team_two_pred')
-    penalty_winners = getattr(prediction, 'penalty_winners')
+    team_one_pred = prediction.team_one_pred
+    team_two_pred = prediction.team_two_pred
+    penalty_winners = prediction.penalty_winners
     if team_one_pred < team_two_pred:
         winner = 2
     elif team_one_pred == team_two_pred:
         winner = penalty_winners
 
-    setattr(prediction, 'team_to_progress', winner)
+    prediction.team_to_progress = winner
 
     session.commit()
 
@@ -164,7 +164,7 @@ def deletePrediction(userid):
 
 def has_prediction(match, userid):
     already = session.query(exists().where(
-        Prediction.userid == userid).where(Prediction.matchid == getattr(match, 'matchid'))).scalar()
+        Prediction.userid == userid).where(Prediction.matchid == match.matchid)).scalar()
 
     return already
 
@@ -174,29 +174,33 @@ def format_matches(matches, userid):
 
     for match in matches:
         hasPrediction = has_prediction(match, userid)
-        matchid = getattr(match, 'matchid')
+        matchid = match.matchid
 
-        team_one_id = getattr(match, 'team_one_id')
-        team_two_id = getattr(match, 'team_two_id')
+        team_one_id = match.team_one_id
+        team_two_id = match.team_two_id
 
         team_one = session.query(Team).filter(Team.teamid == team_one_id)[0]
         team_two = session.query(Team).filter(Team.teamid == team_two_id)[0]
 
+        timezone = pytz.timezone('Europe/London')
+        match_time = match.match_datetime
+        match_time = match_time.replace(tzinfo=pytz.utc).astimezone(timezone)
+
         match_formated = {
             "team_one": {
-                "name": getattr(team_one, 'name'),
-                "emoji": getattr(team_one, 'emoji')
+                "name": team_one.name,
+                "emoji": team_one.emoji
             },
             "team_two": {
-                "name": getattr(team_two, 'name'),
-                "emoji": getattr(team_two, 'emoji')
+                "name": team_two.name,
+                "emoji": team_two.emoji
             },
             "match": {
-                "match_date": getattr(match, 'match_datetime').strftime("%d"),
-                "kick_off_time": getattr(match, 'match_datetime').strftime("%H:%M"),
-                "is_knockout": getattr(match, 'is_knockout'),
-                "team_one_goals": getattr(match, 'team_one_goals'),
-                "team_two_goals": getattr(match, 'team_two_goals'),
+                "match_date": match_time.strftime("%d"),
+                "kick_off_time": match_time.strftime("%H:%M"),
+                "is_knockout": match.is_knockout,
+                "team_one_goals": match.team_one_goals,
+                "team_two_goals": match.team_two_goals,
                 "matchid": matchid
             },
             "hasPrediction": hasPrediction,
@@ -207,10 +211,10 @@ def format_matches(matches, userid):
                 Prediction.userid == userid).filter(Prediction.matchid == matchid)[0]
 
             match_formated['prediction'] = {
-                "team_one_pred": getattr(prediction, 'team_one_pred'),
-                "team_two_pred": getattr(prediction, 'team_two_pred'),
-                "predictionid": getattr(prediction, 'predictionid'),
-                "score": getattr(prediction, 'score'),
+                "team_one_pred": prediction.team_one_pred,
+                "team_two_pred": prediction.team_two_pred,
+                "predictionid": prediction.predictionid,
+                "score": prediction.score,
             }
 
         results.append(match_formated)

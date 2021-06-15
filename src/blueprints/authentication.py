@@ -125,7 +125,7 @@ def admin_required(endpoint):
 
         user = session.query(User).filter(User.userid == userid)[0]
 
-        admin = getattr(user, 'admin')
+        admin = user.admin
 
         if not admin:
             return jsonify({

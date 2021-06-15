@@ -17,9 +17,9 @@ def getLeaderboard(userid):
     users_formated = []
     for user in users:
         score, correct_scores, correct_results = calculate_user_score(user)
-        is_user = getattr(user, 'userid') == userid
+        is_user = user.userid == userid
         user_formated = {
-            "name": getattr(user, 'name'),
+            "name": user.name,
             "score": score,
             "correct_scores": correct_scores,
             "correct_results": correct_results,
