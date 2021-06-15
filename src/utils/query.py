@@ -21,11 +21,7 @@ def getFullMatchQuery(session, userid):
         predict_sub, predict_sub.matchid == Match.matchid, isouter=True)
 
 
-def getUsersMissingGame(session):
-    timezone = pytz.timezone('Europe/London')
-    now = datetime.now(timezone)
-    hour = now + timedelta(hours=1)
-
+def getMatchWithoutPrediction(session):
     team_one = aliased(Team)
     team_two = aliased(Team)
 
@@ -33,8 +29,21 @@ def getUsersMissingGame(session):
         team_one, Match.team_one_id == team_one.teamid).join(
         team_two, Match.team_two_id == team_two.teamid).join(
         User, true(), isouter=True).join(
-        Prediction, and_(User.userid == Prediction.userid, Match.matchid == Prediction.matchid), isouter=True).filter(
-        Match.match_datetime > now).filter(Match.match_datetime < hour).filter(User.hidden == False).filter(Prediction.predictionid == None)
+        Prediction, and_(User.userid == Prediction.userid,
+                         Match.matchid == Prediction.matchid), isouter=True).filter(
+            Prediction.predictionid == None).filter(
+        User.hidden == False)
+
+
+def getUsersMissingGame(session):
+    timezone = pytz.timezone('Europe/London')
+    now = datetime.now(timezone)
+    hour = now + timedelta(hours=1)
+
+    query = getMatchWithoutPrediction(session)
+
+    return query.filter(Match.match_datetime > now).filter(
+        Match.match_datetime < hour)
 
 
 def getAllUsersPredictions(session):
@@ -47,3 +56,8 @@ def getAllUsersPredictions(session):
         func.count(1).filter(Prediction.correct_score).label(
             "correct_scores"),
     ).select_from(User).join(Prediction).filter(User.hidden == False).group_by(User.userid).order_by(desc("score"))
+
+
+def getMatchMissingPredictions(session, matchid):
+    query = getMatchWithoutPrediction(session)
+    return query.filter(Match.matchid == matchid)
