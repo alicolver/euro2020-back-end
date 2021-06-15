@@ -31,6 +31,12 @@ def createPrediction(userid):
 
     data = request.get_json()
 
+    if check_kicked_off(data['matchid']):
+        return jsonify({
+            'success': False,
+            'message': 'Match has started'
+        }), 400
+
     already = session.query(exists().where(
         Prediction.userid == userid).where(Prediction.matchid == data['matchid'])).scalar()
 
@@ -40,12 +46,6 @@ def createPrediction(userid):
             'success': True,
             'message': 'Prediction updated'
         })
-
-    if check_kicked_off(data['matchid']):
-        return jsonify({
-            'success': False,
-            'message': 'Match has started'
-        }), 400
 
     match = session.query(Match).filter(Match.matchid == data['matchid'])[0]
 
