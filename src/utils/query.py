@@ -1,8 +1,8 @@
 from sqlalchemy.orm import aliased
 from database.orm import Match, Prediction, Team, User
-from sqlalchemy.sql import select
+from sqlalchemy.sql import func
 from datetime import datetime, timedelta
-from sqlalchemy import true, and_
+from sqlalchemy import true, and_, desc
 import pytz
 
 
@@ -35,3 +35,15 @@ def getUsersMissingGame(session):
         User, true(), isouter=True).join(
         Prediction, and_(User.userid == Prediction.userid, Match.matchid == Prediction.matchid), isouter=True).filter(
         Match.match_datetime > now).filter(Match.match_datetime < hour).filter(User.hidden == False).filter(Prediction.predictionid == None)
+
+
+def getAllUsersPredictions(session):
+    return session.query(
+        User.userid.label("userid"),
+        User.name.label("name"),
+        func.sum(Prediction.score).label("score"),
+        func.count(1).filter(Prediction.correct_result).label(
+            "correct_results"),
+        func.count(1).filter(Prediction.correct_score).label(
+            "correct_scores"),
+    ).select_from(User).join(Prediction).filter(User.hidden == False).group_by(User.userid).order_by(desc("score"))

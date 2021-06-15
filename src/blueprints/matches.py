@@ -7,7 +7,7 @@ from database.orm import Match, Prediction, Team
 from blueprints.predictions import check_kicked_off, object_as_dict
 import pytz
 from datetime import datetime, timedelta, time
-from utils.query import getFullMatchQuery, getUsersMissingGame
+from utils.query import getFullMatchQuery, getUsersMissingGame, getAllUsersPredictions
 from utils.format import format_matches
 session = Session()
 
@@ -33,7 +33,7 @@ def endedMatches(userid):
 @matches.route('/match/test', methods=['get'])
 @auth_required
 def endedMatchesTest(userid):
-    getUsersMissingGame(session)
+    getAllUsersPredictions(session, userid)
     return jsonify({
         "success": True,
     })

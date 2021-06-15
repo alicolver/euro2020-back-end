@@ -46,3 +46,19 @@ def format_matches(matches, userid):
 
         results.append(match_formated)
     return results
+
+
+def format_users(users, userid):
+    users_formated = []
+    for user in users:
+        is_user = user.userid == userid
+        user_formated = {
+            "name": user.name,
+            "score": user.score,
+            "correct_scores": user.correct_scores,
+            "correct_results": user.correct_results,
+            "is_user": is_user,
+        }
+        users_formated.append(user_formated)
+
+    return users_formated
