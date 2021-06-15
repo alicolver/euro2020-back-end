@@ -1,4 +1,5 @@
 from flask_mail import Mail, Message
+from utils.environment_variables import EMAIL_PASSWORD, EMAIL_USERNAME, EMAIL_PORT, EMAIL_SERVER
 
 mail = Mail()
 
@@ -31,12 +32,19 @@ passwordResetMessage = """
 
 
 def registerApp(app):
+    app.config['MAIL_USERNAME'] = EMAIL_USERNAME
+    app.config['MAIL_PASSWORD'] = EMAIL_PASSWORD
+    app.config['MAIL_SERVER'] = EMAIL_SERVER
+    app.config['MAIL_PORT'] = EMAIL_PORT
+    app.config['MAIL_USE_TLS'] = False
+    app.config['MAIL_USE_SSL'] = True
+
     mail.init_app(app)
 
 
 def sendMissingPredictionEmail(userName, userEmail, teamOneName, teamTwoName):
     msg = Message("Mising Prediction",
-                  sender="euros2020predictions@gmail.com", recipients=[userEmail])
+                  sender=EMAIL_USERNAME, recipients=[userEmail])
     msg.body = missingMessage.format(
         user=userName,
         game="{} vs {}".format(teamOneName, teamTwoName)
@@ -45,7 +53,7 @@ def sendMissingPredictionEmail(userName, userEmail, teamOneName, teamTwoName):
 
 
 def sendPasswordResetEmail(userName, userEmail, otp):
-    msg = Message("Subject", sender="euros2020predictions@gmail.com",
+    msg = Message("Password Reset", sender=EMAIL_USERNAME,
                   recipients=[userEmail])
 
     msg.html = (passwordResetMessage % (userName, otp))
