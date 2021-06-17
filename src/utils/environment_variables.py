@@ -12,3 +12,5 @@ EMAIL_PASSWORD = os.environ['EMAIL_PASSWORD']
 EMAIL_USERNAME = os.environ['EMAIL_USERNAME']
 EMAIL_PORT = 465
 EMAIL_SERVER = 'smtp.gmail.com'
+
+PRIV_KEY = os.environ['PRIV_KEY']

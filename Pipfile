@@ -16,6 +16,7 @@ requests = "*"
 boto3 = "*"
 gunicorn = "*"
 pytz = "*"
+pywebpush = "*"
 
 [requires]
 python_version="3.8.2"

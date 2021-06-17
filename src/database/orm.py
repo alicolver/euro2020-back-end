@@ -26,6 +26,14 @@ class User(Base):
         return pbkdf2_sha256.verify(password, self.password)
 
 
+class Notification(Base):
+    __tablename__ = 'notification'
+
+    userid = Column(Integer, ForeignKey('users.userid'), primary_key=True)
+    subscription = Column(Text, nullable=False)
+    user = relationship("User", foreign_keys=[userid])
+
+
 class PasswordReset(Base):
     __tablename__ = 'passwordreset'
     passwordresetid = Column(Integer, primary_key=True)
