@@ -26,7 +26,6 @@ def subscribe(userid):
     noti = session.query(Notification).filter(
         Notification.userid == userid).first()
     if noti is None:
-
         noti = Notification(
             userid=userid,
             subscription=json_data['subscription'],
