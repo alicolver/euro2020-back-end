@@ -30,7 +30,9 @@ class Notification(Base):
     __tablename__ = 'notification'
 
     userid = Column(Integer, ForeignKey('users.userid'), primary_key=True)
-    subscription = Column(Text, nullable=False)
+    blocked = Column(Boolean, nullable=False)
+    last_updated = Column(DateTime(timezone=True), nullable=False)
+    subscription = Column(Text)
     user = relationship("User", foreign_keys=[userid])
 
 

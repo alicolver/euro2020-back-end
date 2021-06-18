@@ -21,18 +21,35 @@ notifications = Blueprint('notifications', __name__)
 @notifications.route('/notification/subscribe', methods=['POST'])
 @auth_required
 def subscribe(userid):
+    timezone = pytz.timezone('Europe/London')
+    now = datetime.now(timezone)
+
     json_data = request.get_json()
 
     noti = session.query(Notification).filter(
         Notification.userid == userid).first()
     if noti is None:
-        noti = Notification(
-            userid=userid,
-            subscription=json_data['subscription'],
-        )
+        if json_data['blocked']:
+            noti = Notification(
+                userid=userid,
+                blocked=True,
+                last_updated=now
+            )
+        else:
+            noti = Notification(
+                userid=userid,
+                blocked=False,
+                subscription=json_data['subscription'],
+                last_updated=now
+            )
         session.add(noti)
     else:
-        noti.subscription = json_data['subscription']
+        if json_data['blocked']:
+            noti.blocked = True
+            noti.subscription = None
+        else:
+            noti.blocked = False
+            noti.subscription = json_data['subscription']
 
     session.commit()
     return jsonify({
