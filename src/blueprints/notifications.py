@@ -50,6 +50,7 @@ def subscribe(userid):
         else:
             noti.blocked = False
             noti.subscription = json_data['subscription']
+        noti.last_updated = now
 
     session.commit()
     return jsonify({
