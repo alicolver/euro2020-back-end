@@ -65,7 +65,7 @@ def trigger(userid):
     data = request.get_json()
 
     noti = session.query(Notification).filter(
-        User.userid == data['userid']).all()[0]
+        Notification.userid == data['userid']).all()[0]
     try:
         response = webpush(
             subscription_info=json.loads(noti.subscription),
