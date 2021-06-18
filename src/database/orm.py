@@ -16,8 +16,10 @@ class User(Base):
     name = Column(String(255), nullable=False)
     email = Column(String(255), nullable=False, unique=True)
     password = Column(String(255), nullable=False)
+    last_login = Column(DateTime(timezone=True), nullable=False)
     admin = Column(Boolean, nullable=False, default=False)
     hidden = Column(Boolean, nullable=False, default=False)
+    force_login = Column(Boolean, nullable=False, default=False)
 
     def set_password(self, password):
         self.password = pbkdf2_sha256.hash(password)

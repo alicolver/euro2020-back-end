@@ -15,6 +15,7 @@ from utils.mail import sendPasswordResetEmail
 from utils.environment_variables import JWT_ALGORITHM, JWT_KEY
 from passlib.hash import pbkdf2_sha256
 from database.connection_manager import Session
+from utils.time import now
 
 session = Session()
 
@@ -44,6 +45,11 @@ def login():
     if not (user and user.check_password(password)):
         return error_return
 
+    user.force_login = False
+    user.last_login = now()
+
+    session.commit()
+
     payload = {
         'user_id': user.userid,
         'admin': user.admin,
@@ -63,7 +69,8 @@ def signup():
 
     user = User(
         name=user_info['name'],
-        email=user_info['email'].lower()
+        email=user_info['email'].lower(),
+        last_login=now()
     )
 
     user.set_password(user_info['password'])
@@ -111,6 +118,14 @@ def auth_required(endpoint):
             return jsonify({
                 'success': False
             }), 403
+
+        user = session.query(User).filter(User.userid == userid)[0]
+        if user.force_login:
+            return jsonify({
+                'success': False,
+                'message': "Refresh login required"
+            }), 403
+
         return endpoint(userid, *args, **kws)
     return wrapper
 
