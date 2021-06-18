@@ -30,6 +30,7 @@ def login():
     error_return = jsonify({
         'token': '',
         'error-message': 'Incorrect Email or Password',
+        'success': False,
     }), 403
 
     email = credentials['email'].lower()
@@ -60,6 +61,7 @@ def login():
     return jsonify({
         'token': jwt_token,
         'error-message': '',
+        'success': True,
     })
 
 
