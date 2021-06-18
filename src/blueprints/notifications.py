@@ -61,8 +61,11 @@ def subscribe(userid):
 @notifications.route('/notification/trigger', methods=['POST'])
 @auth_required
 def trigger(userid):
-    noti = session.query(Notification).all()[0]
+
     data = request.get_json()
+
+    noti = session.query(Notification).filter(
+        User.userid == data['userid']).all()[0]
     try:
         response = webpush(
             subscription_info=json.loads(noti.subscription),
