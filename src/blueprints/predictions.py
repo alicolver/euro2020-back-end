@@ -8,7 +8,7 @@ from sqlalchemy.exc import SQLAlchemyError
 import pytz
 from datetime import datetime, timedelta, time
 from utils.query import getFullMatchQuery
-from utils.format import format_matches
+from utils.format import format_matches, object_as_dict
 
 session = Session()
 
@@ -102,11 +102,6 @@ def createPrediction(userid):
             'success': True,
             'message': 'Prediction Created',
         })
-
-
-def object_as_dict(obj):
-    return {c.key: getattr(obj, c.key)
-            for c in inspect(obj).mapper.column_attrs}
 
 
 @predictions.route('/prediction', methods=['GET'])

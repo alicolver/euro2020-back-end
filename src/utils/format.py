@@ -1,4 +1,10 @@
 import pytz
+from sqlalchemy import inspect
+
+
+def object_as_dict(obj):
+    return {c.key: getattr(obj, c.key)
+            for c in inspect(obj).mapper.column_attrs}
 
 
 def format_matches(matches, userid):
@@ -46,6 +52,13 @@ def format_matches(matches, userid):
 
         results.append(match_formated)
     return results
+
+
+def format_predictions(predictions):
+    formated_preds = []
+    for pred in predictions:
+        formated_preds.append(object_as_dict(pred))
+    return formated_preds
 
 
 def format_users(users, userid):

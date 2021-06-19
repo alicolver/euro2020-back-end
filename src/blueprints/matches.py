@@ -4,11 +4,11 @@ from sqlalchemy.orm import aliased
 from database.connection_manager import Session
 from blueprints.authentication import admin_required, auth_required
 from database.orm import Match, Prediction, Team
-from blueprints.predictions import check_kicked_off, object_as_dict
+from blueprints.predictions import check_kicked_off
 import pytz
 from datetime import datetime, timedelta, time
 from utils.query import getFullMatchQuery, getUsersMissingGame, getAllUsersPredictions, getMatchMissingPredictions
-from utils.format import format_matches
+from utils.format import format_matches, format_predictions, object_as_dict
 session = Session()
 
 
@@ -77,6 +77,36 @@ def getLiveGames(userid):
     return jsonify({
         "success": True,
         "matches": results
+    })
+
+
+@matches.route('/match/predictions', methods=['GET'])
+@auth_required
+def getMatchPredictions(userid):
+    matchid = request.args.get("matchid")
+    print(matchid)
+
+    if matchid is None:
+        return jsonify({
+            'success': False,
+            'message': "You must send a matchid"
+        }), 404
+
+    match = session.query(Match).filter(Match.matchid == matchid).all()[0]
+    print(match)
+    if not check_kicked_off(matchid):
+        return jsonify({
+            'success': False,
+            'message': "Match has not kicked off yet"
+        }), 404
+
+    predictions = session.query(Prediction).filter(
+        Prediction.matchid == matchid).order_by(Prediction.score.desc()).all()
+
+    return jsonify({
+        'success': True,
+        'match': object_as_dict(match),
+        'predictions': format_predictions(predictions)
     })
 
 
