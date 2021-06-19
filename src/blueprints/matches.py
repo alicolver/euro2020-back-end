@@ -92,8 +92,12 @@ def getMatchPredictions(userid):
             'message': "You must send a matchid"
         }), 404
 
-    match = session.query(Match).filter(Match.matchid == matchid).all()[0]
-    print(match)
+    team_one = aliased(Team)
+    team_two = aliased(Team)
+
+    match_details = session.query(Match, team_one, team_two).filter(Match.matchid == matchid).join(
+        team_one, Match.team_one_id == team_one.teamid).join(
+        team_two, Match.team_two_id == team_two.teamid).all()[0]
     if not check_kicked_off(matchid):
         return jsonify({
             'success': False,
@@ -105,7 +109,9 @@ def getMatchPredictions(userid):
 
     return jsonify({
         'success': True,
-        'match': object_as_dict(match),
+        'match': object_as_dict(match_details[0]),
+        'team_one': object_as_dict(match_details[1]),
+        'team_two': object_as_dict(match_details[2]),
         'predictions': format_predictions(predictions)
     })
 
