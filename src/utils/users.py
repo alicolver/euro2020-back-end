@@ -18,5 +18,5 @@ def get_userid(jwt_token):
             return jsonify({'message': 'INVALID TOKEN'})
 
         if 'user_id' in payload:
-            return payload['user_id']
+            return jsonify({'message': 'INVALID TOKEN'})
         return payload['userid']
