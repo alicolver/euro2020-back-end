@@ -17,4 +17,6 @@ def get_userid(jwt_token):
         except (jwt.DecodeError, jwt.ExpiredSignatureError):
             return jsonify({'message': 'INVALID TOKEN'})
 
-        return payload['user_id']
+        if 'user_id' in payload:
+            return payload['user_id']
+        return payload['userid']

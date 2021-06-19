@@ -52,7 +52,7 @@ def login():
     session.commit()
 
     payload = {
-        'user_id': user.userid,
+        'userid': user.userid,
         'admin': user.admin,
     }
 
@@ -168,6 +168,22 @@ def validateToken(userid):
 def isAdmin():
     return jsonify({
         'success': True
+    })
+
+
+@authentication.route('/user/name', methods=["GET"])
+@auth_required
+def getName(userid):
+    if request.args.get("userid") is None:
+        return jsonify({
+            'success': False,
+            'message': "Please give a userid",
+        })
+    userid = request.args.get("userid")
+    user = session.query(User).filter(User.userid == userid).all()[0]
+    return jsonify({
+        'success': True,
+        'name': user.name,
     })
 
 

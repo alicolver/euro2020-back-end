@@ -18,6 +18,10 @@ matches = Blueprint('matches', __name__)
 @matches.route('/match/ended', methods=['get'])
 @auth_required
 def endedMatches(userid):
+
+    if request.args.get("userid") is not None:
+        userid = request.args.get("userid")
+
     query = getFullMatchQuery(session, userid)
 
     matches = query.filter(Match.is_fulltime).order_by(
@@ -47,6 +51,9 @@ def getLiveGames(userid):
     timezone = pytz.timezone('Europe/London')
     now = datetime.now(timezone)
     today = datetime(now.year, now.month, now.day)
+
+    if request.args.get("userid") is not None:
+        userid = request.args.get("userid")
 
     tomorrow = today + timedelta(1)
 

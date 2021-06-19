@@ -54,6 +54,7 @@ def format_users(users, userid):
         is_user = user.userid == userid
         user_formated = {
             "name": user.name,
+            "userid": user.userid,
             "score": user.score,
             "correct_scores": user.correct_scores,
             "correct_results": user.correct_results,
