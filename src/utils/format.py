@@ -57,7 +57,9 @@ def format_matches(matches, userid):
 def format_predictions(predictions):
     formated_preds = []
     for pred in predictions:
-        formated_preds.append(object_as_dict(pred))
+        form_pred = object_as_dict(pred[0])
+        form_pred['name'] = pred[1].name
+        formated_preds.append(form_pred)
     return formated_preds
 
 

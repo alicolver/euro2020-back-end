@@ -3,7 +3,7 @@ from sqlalchemy.sql import exists
 from sqlalchemy.orm import aliased
 from database.connection_manager import Session
 from blueprints.authentication import admin_required, auth_required
-from database.orm import Match, Prediction, Team
+from database.orm import Match, Prediction, Team, User
 from blueprints.predictions import check_kicked_off
 import pytz
 from datetime import datetime, timedelta, time
@@ -104,7 +104,7 @@ def getMatchPredictions(userid):
             'message': "Match has not kicked off yet"
         }), 404
 
-    predictions = session.query(Prediction).filter(
+    predictions = session.query(Prediction, User).join(User, Prediction.userid == User.userid).filter(
         Prediction.matchid == matchid).order_by(Prediction.score.desc()).all()
 
     return jsonify({
