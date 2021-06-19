@@ -178,7 +178,14 @@ def getName(userid):
         return jsonify({
             'success': False,
             'message': "Please give a userid",
-        })
+        }), 404
+
+    if not request.args.get("userid").isnumeric():
+        return jsonify({
+            'success': False,
+            'message': "userid must be a number",
+        }), 404
+
     userid = request.args.get("userid")
     user = session.query(User).filter(User.userid == userid).all()[0]
     return jsonify({

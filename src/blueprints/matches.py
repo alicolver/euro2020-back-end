@@ -22,6 +22,12 @@ def endedMatches(userid):
     if request.args.get("userid") is not None:
         userid = request.args.get("userid")
 
+    if not userid.isnumeric():
+        return jsonify({
+            'success': False,
+            'message': "userid must be a number",
+        }), 404
+
     query = getFullMatchQuery(session, userid)
 
     matches = query.filter(Match.is_fulltime).order_by(
@@ -54,6 +60,12 @@ def getLiveGames(userid):
 
     if request.args.get("userid") is not None:
         userid = request.args.get("userid")
+
+    if not userid.isnumeric():
+        return jsonify({
+            'success': False,
+            'message': "userid must be a number",
+        }), 404
 
     tomorrow = today + timedelta(1)
 
