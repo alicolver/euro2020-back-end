@@ -20,13 +20,12 @@ matches = Blueprint('matches', __name__)
 def endedMatches(userid):
 
     if request.args.get("userid") is not None:
+        if not request.args.get("userid").isnumeric():
+            return jsonify({
+                'success': False,
+                'message': "userid must be a number",
+            }), 404
         userid = request.args.get("userid")
-
-    if not userid.isnumeric():
-        return jsonify({
-            'success': False,
-            'message': "userid must be a number",
-        }), 404
 
     query = getFullMatchQuery(session, userid)
 
@@ -59,13 +58,12 @@ def getLiveGames(userid):
     today = datetime(now.year, now.month, now.day)
 
     if request.args.get("userid") is not None:
+        if not request.args.get("userid").isnumeric():
+            return jsonify({
+                'success': False,
+                'message': "userid must be a number",
+            }), 404
         userid = request.args.get("userid")
-
-    if not userid.isnumeric():
-        return jsonify({
-            'success': False,
-            'message': "userid must be a number",
-        }), 404
 
     tomorrow = today + timedelta(1)
 
