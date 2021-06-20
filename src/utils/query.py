@@ -58,6 +58,12 @@ def getAllUsersPredictions(session):
     ).select_from(User).join(Prediction).filter(User.hidden == False).group_by(User.userid).order_by(desc("score"))
 
 
-def getMatchMissingPredictions(session, matchid):
-    query = getMatchWithoutPrediction(session)
-    return query.filter(Match.matchid == matchid)
+def getMatchMissingPredictions(session):
+    timezone = pytz.timezone('Europe/London')
+    now = datetime.now(timezone)
+    today = datetime(now.year, now.month, now.day)
+
+    tomorrow = today + timedelta(1)
+
+    return getMatchWithoutPrediction(session).filter(
+        Match.match_datetime > today).filter(Match.match_datetime < tomorrow)

@@ -8,7 +8,7 @@ from blueprints.predictions import check_kicked_off
 import pytz
 from datetime import datetime, timedelta, time
 from utils.query import getFullMatchQuery, getUsersMissingGame, getAllUsersPredictions, getMatchMissingPredictions
-from utils.format import format_matches, format_predictions, object_as_dict
+from utils.format import format_matches, format_missing_predictions, format_predictions, object_as_dict
 session = Session()
 
 
@@ -42,11 +42,11 @@ def endedMatches(userid):
 @matches.route('/match/missing', methods=['get'])
 @admin_required
 def matchMissingPredictions():
-    matchid = request.args.get('matchid')
-    rows = getMatchMissingPredictions(session, matchid).all()
+    rows = getMatchMissingPredictions(session).all()
+    data = format_missing_predictions(rows)
     return jsonify({
-        "success": True,
-        "users": list(map(lambda r: r[3].name, rows))
+        'success': True,
+        'matches': data,
     })
 
 
