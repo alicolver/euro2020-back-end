@@ -66,4 +66,4 @@ def getMatchMissingPredictions(session):
     tomorrow = today + timedelta(1)
 
     return getMatchWithoutPrediction(session).filter(
-        Match.match_datetime > today).filter(Match.match_datetime < tomorrow)
+        Match.match_datetime > now).filter(Match.match_datetime < tomorrow)
