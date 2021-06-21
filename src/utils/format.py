@@ -99,7 +99,7 @@ def format_missing_predictions(rows):
             'userid': row[3].userid,
         }
         if match.matchid in matchid_to_match:
-            matchid_to_match[match.matchid].users.append(user)
+            matchid_to_match[match.matchid]['users'].append(user)
         else:
             matchid_to_match[match.matchid] = {
                 'match': format_match(match),
@@ -109,6 +109,7 @@ def format_missing_predictions(rows):
             }
     formated = []
     for matchid, data in matchid_to_match.items():
+        data['users'] = sorted(data['users'], key=lambda user: user['name'])
         formated.append(data)
 
     return sorted(formated, key=lambda data: data['match']['match_datetime'])
