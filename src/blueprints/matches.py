@@ -9,6 +9,7 @@ import pytz
 from datetime import datetime, timedelta, time
 from utils.query import getFullMatchQuery, getUsersMissingGame, getAllUsersPredictions, getMatchMissingPredictions
 from utils.format import format_matches, format_missing_predictions, format_predictions, object_as_dict
+from blueprints.score import recalculate_scores_knockout
 session = Session()
 
 
@@ -132,6 +133,17 @@ def endMatch():
 
     match = session.query(Match).filter(
         Match.matchid == data['matchid'])[0]
+
+    # If draw and knockout game, we must set penalty winners
+    if match.is_knockout and match.team_one_goals == match.team_two_goals:
+        if 'penalty_winners' not in data:
+            return jsonify({
+                'success': False,
+                'message': "Knockout game with a draw requires field 'penalty_winners'",
+            })
+        match.penalty_winners = data['penalty_winners']
+        match.is_fulltime = True
+        recalculate_scores_knockout(match, session)
 
     match.is_fulltime = True
 

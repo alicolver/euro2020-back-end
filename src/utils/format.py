@@ -18,6 +18,7 @@ def format_match(match):
         "is_knockout": match.is_knockout,
         "team_one_goals": match.team_one_goals,
         "team_two_goals": match.team_two_goals,
+        "penalty_winners": match.penalty_winners,
         "matchid": match.matchid
     }
 
@@ -55,6 +56,8 @@ def format_matches(matches, userid):
             match_formated['prediction'] = {
                 "team_one_pred": prediction.team_one_pred,
                 "team_two_pred": prediction.team_two_pred,
+                "team_two_pred": prediction.team_two_pred,
+                "penalty_winners": prediction.penalty_winners,
                 "predictionid": prediction.predictionid,
                 "score": prediction.score,
             }

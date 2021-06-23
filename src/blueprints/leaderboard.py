@@ -3,7 +3,6 @@ from sqlalchemy.sql import exists
 from database.connection_manager import Session
 from database.orm import User
 from blueprints.authentication import auth_required
-from blueprints.score import calculate_user_score
 from utils.query import getAllUsersPredictions
 from utils.format import format_users
 session = Session()

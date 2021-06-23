@@ -69,6 +69,7 @@ class Match(Base):
     team_two_id = Column(Integer, ForeignKey('teams.teamid'))
     team_one_goals = Column(Integer)
     team_two_goals = Column(Integer)
+    penalty_winners = Column(Integer)
     is_fulltime = Column(Boolean)
     is_knockout = Column(Boolean, nullable=False)
     match_datetime = Column(DateTime(timezone=True), nullable=False)
