@@ -9,6 +9,7 @@ import pytz
 from datetime import datetime, timedelta, time
 from utils.query import getFullMatchQuery
 from utils.format import format_matches, object_as_dict
+from utils.environment_variables import HIDE_KNOCKOUTS
 
 session = Session()
 
@@ -171,12 +172,18 @@ def getUnpredictedMatches(userid):
 
     query = getFullMatchQuery(session, userid)
 
-    matches = query.filter(Match.match_datetime >= now).filter(
-        Match.match_datetime <= tomorrow).order_by(Match.match_datetime.asc()).all()
+    query = query.filter(Match.match_datetime >= now).filter(
+        Match.match_datetime <= tomorrow)
+
+    if HIDE_KNOCKOUTS:
+        query = query.filter(Match.is_knockout == False)
+
+    matches = query.order_by(Match.match_datetime.asc()).all()
 
     results = format_matches(matches, userid)
 
     return jsonify({
         "success": True,
-        "matches": results
+        "matches": results,
+        "hidden": HIDE_KNOCKOUTS
     })

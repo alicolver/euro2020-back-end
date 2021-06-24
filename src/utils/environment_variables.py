@@ -14,3 +14,5 @@ EMAIL_PORT = 465
 EMAIL_SERVER = 'smtp.gmail.com'
 
 PRIV_KEY = os.environ['PRIV_KEY']
+
+HIDE_KNOCKOUTS = os.environ['HIDE_KNOCKOUTS'] == 'True' if 'HIDE_KNOCKOUTS' in os.environ else False
