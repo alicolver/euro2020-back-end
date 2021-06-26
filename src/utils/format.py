@@ -16,6 +16,7 @@ def format_match(match):
         "kick_off_time": match_time.strftime("%H:%M"),
         "match_datetime": match_time,
         "is_knockout": match.is_knockout,
+        "is_fulltime": match.is_fulltime,
         "team_one_goals": match.team_one_goals,
         "team_two_goals": match.team_two_goals,
         "penalty_winners": match.penalty_winners,
