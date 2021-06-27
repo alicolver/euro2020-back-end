@@ -14,7 +14,7 @@ def get_userid(jwt_token):
             payload = jwt.decode(jwt_token, JWT_KEY_PUB,
                                  algorithms=[JWT_ALGORITHM])
 
-        except (jwt.DecodeError, jwt.ExpiredSignatureError):
+        except (jwt.DecodeError, jwt.ExpiredSignatureError, jwt.InvalidAlgorithmError):
             return jsonify({'message': 'INVALID TOKEN'})
 
         if 'user_id' in payload:
