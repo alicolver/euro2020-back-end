@@ -12,7 +12,7 @@ from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy import desc
 from utils.users import get_userid
 from utils.mail import sendPasswordResetEmail
-from utils.environment_variables import JWT_ALGORITHM, JWT_KEY
+from utils.environment_variables import JWT_ALGORITHM, JWT_KEY_PRIV
 from passlib.hash import pbkdf2_sha256
 from database.connection_manager import Session
 from utils.time import now
@@ -56,7 +56,7 @@ def login():
         'admin': user.admin,
     }
 
-    jwt_token = jwt.encode(payload, JWT_KEY, JWT_ALGORITHM)
+    jwt_token = jwt.encode(payload, JWT_KEY_PRIV, JWT_ALGORITHM)
 
     return jsonify({
         'token': jwt_token,
