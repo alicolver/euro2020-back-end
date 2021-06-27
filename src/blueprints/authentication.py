@@ -197,7 +197,7 @@ def getName(userid):
 @authentication.route('/reset-password', methods=["POST"])
 def request_reset():
     try:
-        email = request.get_json()["email"]
+        email = request.get_json()["email"].lower()
 
         user_query = session.query(User).filter(User.email == email)
 
