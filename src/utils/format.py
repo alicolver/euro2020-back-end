@@ -12,7 +12,7 @@ def format_match(match):
     match_time = match.match_datetime
     match_time = match_time.replace(tzinfo=pytz.utc).astimezone(timezone)
     return {
-        "match_date": match_time.strftime("%d"),
+        "match_date": match_time.strftime("%-d"),
         "kick_off_time": match_time.strftime("%H:%M"),
         "match_datetime": match_time,
         "is_knockout": match.is_knockout,
