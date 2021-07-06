@@ -109,15 +109,15 @@ def recalculate_scores_knockout(match, session):
             print("You got pens wrong!")
 
         if team_one_goals > team_two_goals and team_one_pred > team_two_pred:
-            score += 1
+            score += 2
             prediction.correct_result = True
 
         if team_one_goals < team_two_goals and team_one_pred < team_two_pred:
-            score += 1
+            score += 2
             prediction.correct_result = True
 
         if team_one_goals == team_two_goals and team_one_pred == team_two_pred:
-            score += 1
+            score += 2
             prediction.correct_result = True
 
         team_one_correct = team_one_goals == team_one_pred
