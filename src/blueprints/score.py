@@ -98,15 +98,12 @@ def recalculate_scores_knockout(match, session):
         team_one_pred = prediction.team_one_pred
         team_two_pred = prediction.team_two_pred
         pen_pred = prediction.penalty_winners
-        score = 0
         prediction.correct_score = False
         prediction.correct_result = False
+        score = 0
 
         if match.is_fulltime and team_one_goals == team_two_goals and penalty_winners == pen_pred:
-            print("You got pens correct")
             score += 1
-        else:
-            print("You got pens wrong!")
 
         if team_one_goals > team_two_goals and team_one_pred > team_two_pred:
             score += 2
@@ -129,5 +126,5 @@ def recalculate_scores_knockout(match, session):
         if team_one_correct and team_two_correct:
             prediction.correct_score = True
             score += 1
-        print("Final score is", score)
+
         prediction.score = score
