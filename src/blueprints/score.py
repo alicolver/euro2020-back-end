@@ -127,4 +127,4 @@ def recalculate_scores_knockout(match, session):
             prediction.correct_score = True
             score += 1
 
-        prediction.score = score
+        prediction.score = score * 2
